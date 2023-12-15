@@ -313,6 +313,7 @@ virtual API.
 > |------|-------|-----------|------------|
 > | resourceId | body (required) | string | ID of requested resource |
 > | endpoint | body (required) | string | Name of requested endpoint |
+> | method | body (required) | string | HTTP method of requested endpoint |
 > | params | body (required) | object | Object of param keys and values |
 > | data | body (required) | any | Request body for requested endpoint |
 > | X_CONDUCTOR_KEY | header (required if secure mode on) | string | Valid access token |

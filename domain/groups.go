@@ -1,10 +1,20 @@
 package domain
 
+import "context"
+
 type Group struct {
 	ID   string
-	name string
+	Name string
 }
 
 type GroupInput struct {
-	name string
+	Name string
+}
+
+type GroupRepo interface {
+	Add(ctx context.Context, group Group) (Group, error)
+}
+
+type GroupHandlers interface {
+	Add(group GroupInput, userGroups []string) (Group, error)
 }
