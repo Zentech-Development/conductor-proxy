@@ -9,6 +9,7 @@ type App struct {
 	Host         string
 	AdminGroups  []string
 	UserGroups   []string
+	Type         string
 }
 
 type AppInput struct {
@@ -28,3 +29,8 @@ type AppHandlers interface {
 	GetByID(id string, userGroups []string) (App, error)
 	Add(app AppInput, userGroups []string) (App, error)
 }
+
+const (
+	AppTypeHTTP  = "http"
+	AppTypeHTTPS = "https"
+)

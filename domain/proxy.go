@@ -25,5 +25,5 @@ type ProxyRequestInput struct {
 }
 
 type ProxyHandlers interface {
-	HTTPRequest(request ProxyRequest) (ProxyResponse, int)
+	ProxyRequest(request ProxyRequest, userGroups []string) (ProxyResponse, int)
 }

@@ -94,7 +94,7 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 			Params:    requestInput.Params,
 		}
 
-		response, statusCode := h.Proxy.HTTPRequest(request)
+		response, statusCode := h.Proxy.ProxyRequest(request, make([]string, 0))
 
 		c.JSON(statusCode, gin.H{
 			"statusCode": response.StatusCode,

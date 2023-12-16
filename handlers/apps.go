@@ -53,6 +53,7 @@ func (h AppHandler) Add(app domain.AppInput, userGroups []string) (domain.App, e
 		Host:         app.Host,
 		AdminGroups:  app.AdminGroups,
 		UserGroups:   app.UserGroups,
+		Type:         "http",
 	}
 
 	savedApp, err := h.Adapters.Repos.Apps.Add(ctx, appToSave)
