@@ -11,10 +11,10 @@ type Account struct {
 }
 
 type AccountInput struct {
-	Username        string
-	Passkey         string
-	Groups          []string
-	TokenExpiration int
+	Username        string   `json:"username"`
+	Passkey         string   `json:"passkey"`
+	Groups          []string `json:"groups"`
+	TokenExpiration int      `json:"tokenExpiration"`
 }
 
 type LoginInput struct {

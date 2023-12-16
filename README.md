@@ -45,10 +45,10 @@ programming languages, starting with Go, and a CLI.
 
 
 # Supported Databases
-- Redis
-- Mongo
-- Postgres
-- SQLite (for testing only)
+- Redis (In Progress)
+- Mongo (TODO)
+- Postgres (TODO)
+- SQLite (for testing only, TODO)
 
 
 # Installation
@@ -106,13 +106,27 @@ custom value set. In seconds. A value of 0 means the generated tokens will never
 
 # Concepts
 ## Accounts
+TODO
 
 ## Groups
+TODO
 
 ## Services
+TODO
 
 ## Resources
+### Parameters
+Valid Data Types by Param Type:
+Header: string, int, bool
+Path: string, int, bool
+Query: string, int, bool
+Body: any
+BodyFlat: any
 
+TODO
+
+## Proxy
+TODO
 
 # Conductor Proxy API Reference
 There are two APIs to interact with- the proxy and the admin APIs. The admin API is used
@@ -315,7 +329,7 @@ virtual API.
 > | endpoint | body (required) | string | Name of requested endpoint |
 > | method | body (required) | string | HTTP method of requested endpoint |
 > | params | body (required) | object | Object of param keys and values |
-> | data | body (required) | any | Request body for requested endpoint |
+> | data | body (required) | any | Optional custom body to send to override body and bodyFlat params |
 > | X_CONDUCTOR_KEY | header (required if secure mode on) | string | Valid access token |
 
 ##### Responses

@@ -66,7 +66,9 @@ const (
 )
 
 const (
-	ParameterTypePath   = "path"
-	ParameterTypeQuery  = "query"
-	ParameterTypeHeader = "header"
+	ParameterTypePath     = "path"
+	ParameterTypeQuery    = "query"
+	ParameterTypeHeader   = "header"
+	ParameterTypeBody     = "body"
+	ParameterTypeBodyFlat = "bodyFlat"
 )

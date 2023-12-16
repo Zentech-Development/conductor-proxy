@@ -1,10 +1,10 @@
-package cmd
+package main
 
 import (
 	"log"
 
 	redisAdapters "github.com/Zentech-Development/conductor-proxy/adapters/redis"
-	"github.com/Zentech-Development/conductor-proxy/bindings"
+	bindings "github.com/Zentech-Development/conductor-proxy/bindings/gin"
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/Zentech-Development/conductor-proxy/handlers"
 )
