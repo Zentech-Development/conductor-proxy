@@ -29,6 +29,7 @@ func main() {
 		Accounts:  handlers.NewAccountHandler(&adapters),
 		Groups:    handlers.NewGroupHandler(&adapters),
 		Resources: handlers.NewResourceHandler(&adapters),
+		Proxy:     handlers.NewProxyHandler(&adapters),
 	}
 
 	server := bindings.NewHTTPServerBinding(handlers, bindings.HTTPServerBindingConfig{

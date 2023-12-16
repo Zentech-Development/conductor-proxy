@@ -11,8 +11,8 @@ type ProxyHandler struct {
 	Adapters *domain.Adapters
 }
 
-func NewProxyHandler(adapters *domain.Adapters) AppHandler {
-	return AppHandler{
+func NewProxyHandler(adapters *domain.Adapters) ProxyHandler {
+	return ProxyHandler{
 		Adapters: adapters,
 	}
 }
