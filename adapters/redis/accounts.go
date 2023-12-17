@@ -20,7 +20,22 @@ func newRedisAccountRepo(client *redis.Client) RedisAccountRepo {
 }
 
 func (r RedisAccountRepo) GetByID(ctx context.Context, id string) (domain.Account, error) {
-	return domain.Account{}, nil
+	val, err := r.Client.Get(ctx, getRedisKey(accountKey, id)).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return domain.Account{}, errors.New("Account not found")
+		}
+
+		return domain.Account{}, err
+	}
+
+	account := domain.Account{}
+
+	if err = json.Unmarshal([]byte(val), &account); err != nil {
+		return domain.Account{}, err
+	}
+
+	return account, nil
 }
 
 func (r RedisAccountRepo) Add(ctx context.Context, account domain.Account) (domain.Account, error) {
@@ -34,7 +49,7 @@ func (r RedisAccountRepo) Add(ctx context.Context, account domain.Account) (doma
 		return domain.Account{}, errors.New("Account ID already exists")
 	}
 
-	_, err = r.Client.Set(ctx, getRedisKey(resourceKey, account.ID), valToSet, 0).Result()
+	_, err = r.Client.Set(ctx, getRedisKey(accountKey, account.ID), valToSet, 0).Result()
 	if err != nil {
 		return domain.Account{}, err
 	}
@@ -53,7 +68,7 @@ func (r RedisAccountRepo) Update(ctx context.Context, account domain.Account) (d
 		return domain.Account{}, errors.New("Account not found")
 	}
 
-	_, err = r.Client.Set(ctx, getRedisKey(resourceKey, account.ID), valToSet, 0).Result()
+	_, err = r.Client.Set(ctx, getRedisKey(accountKey, account.ID), valToSet, 0).Result()
 	if err != nil {
 		return domain.Account{}, err
 	}

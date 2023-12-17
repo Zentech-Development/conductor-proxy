@@ -45,6 +45,8 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 		return domain.Account{}, err
 	}
 
+	savedAccount.Passkey = ""
+
 	return savedAccount, nil
 }
 

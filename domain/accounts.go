@@ -3,11 +3,11 @@ package domain
 import "context"
 
 type Account struct {
-	ID              string
-	Username        string
-	Passkey         string
-	Groups          []string
-	TokenExpiration int
+	ID              string   `json:"id"`
+	Username        string   `json:"username"`
+	Passkey         string   `json:"passkey,omitempty"`
+	Groups          []string `json:"groups"`
+	TokenExpiration int      `json:"tokenExpiration"`
 }
 
 type AccountInput struct {
