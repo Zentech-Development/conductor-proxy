@@ -13,11 +13,11 @@ type App struct {
 }
 
 type AppInput struct {
-	Name         string
-	FriendlyName string
-	Host         string
-	AdminGroups  []string
-	UserGroups   []string
+	Name         string   `json:"name" binding:"required"`
+	FriendlyName string   `json:"friendlyName" binding:"required"`
+	Host         string   `json:"host" binding:"required"`
+	AdminGroups  []string `json:"adminGroups" binding:"required"`
+	UserGroups   []string `json:"userGroups" binding:"required"`
 }
 
 type AppRepo interface {

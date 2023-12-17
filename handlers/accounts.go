@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/google/uuid"
@@ -54,6 +55,23 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 	savedAccount.Passkey = ""
 
 	return savedAccount, nil
+}
+
+func (h AccountHandler) Login(credentials domain.LoginInput) (domain.Account, error) {
+	ctx := context.Background()
+
+	account, err := h.Adapters.Repos.Accounts.GetByID(ctx, credentials.Username)
+	if err != nil {
+		time.Sleep(time.Second)
+		return domain.Account{}, errors.New("Invalid credentials")
+	}
+
+	if !checkPassword(credentials.Passkey, account.Passkey) {
+		time.Sleep(time.Second)
+		return domain.Account{}, errors.New("Invalid credentials")
+	}
+
+	return account, nil
 }
 
 func (h AccountHandler) UpdateGroups(id string, groupsToAdd []string, groupsToRemove []string, userGroups []string) error {

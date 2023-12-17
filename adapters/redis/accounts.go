@@ -44,12 +44,12 @@ func (r RedisAccountRepo) Add(ctx context.Context, account domain.Account) (doma
 		return domain.Account{}, err
 	}
 
-	_, err = r.Client.Get(ctx, getRedisKey(accountKey, account.ID)).Result()
+	_, err = r.Client.Get(ctx, getRedisKey(accountKey, account.Username)).Result()
 	if err == nil {
-		return domain.Account{}, errors.New("Account ID already exists")
+		return domain.Account{}, errors.New("Account username already exists")
 	}
 
-	_, err = r.Client.Set(ctx, getRedisKey(accountKey, account.ID), valToSet, 0).Result()
+	_, err = r.Client.Set(ctx, getRedisKey(accountKey, account.Username), valToSet, 0).Result()
 	if err != nil {
 		return domain.Account{}, err
 	}
@@ -63,12 +63,12 @@ func (r RedisAccountRepo) Update(ctx context.Context, account domain.Account) (d
 		return domain.Account{}, err
 	}
 
-	_, err = r.Client.Get(ctx, getRedisKey(accountKey, account.ID)).Result()
+	_, err = r.Client.Get(ctx, getRedisKey(accountKey, account.Username)).Result()
 	if err != nil {
 		return domain.Account{}, errors.New("Account not found")
 	}
 
-	_, err = r.Client.Set(ctx, getRedisKey(accountKey, account.ID), valToSet, 0).Result()
+	_, err = r.Client.Set(ctx, getRedisKey(accountKey, account.Username), valToSet, 0).Result()
 	if err != nil {
 		return domain.Account{}, err
 	}

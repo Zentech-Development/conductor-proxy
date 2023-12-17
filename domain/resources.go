@@ -3,29 +3,29 @@ package domain
 import "context"
 
 type Property struct {
-	Name         string `json:"name"`
-	FriendlyName string `json:"friendlyName"`
-	DataType     string `json:"dataType"`
-	Required     bool   `json:"required"`
-	DefaultValue any    `json:"defaultValue"`
-	HasDefault   bool   `json:"hasDefault"`
+	Name         string `json:"name" binding:"required"`
+	FriendlyName string `json:"friendlyName" binding:"required"`
+	DataType     string `json:"dataType" binding:"required"`
+	Required     bool   `json:"required" binding:"required"`
+	DefaultValue any    `json:"defaultValue" binding:"required"`
+	HasDefault   bool   `json:"hasDefault" binding:"required"`
 }
 
 type Parameter struct {
-	Name         string `json:"name"`
-	FriendlyName string `json:"friendlyName"`
-	DataType     string `json:"dataType"`
-	Required     bool   `json:"required"`
-	DefaultValue any    `json:"defaultValue"`
-	HasDefault   bool   `json:"hasDefault"`
-	Type         string `json:"type"`
+	Name         string `json:"name" binding:"required"`
+	FriendlyName string `json:"friendlyName" binding:"required"`
+	DataType     string `json:"dataType" binding:"required"`
+	Required     bool   `json:"required" binding:"required"`
+	DefaultValue any    `json:"defaultValue" binding:"required"`
+	HasDefault   bool   `json:"hasDefault" binding:"required"`
+	Type         string `json:"type" binding:"required"`
 }
 
 type Endpoint struct {
-	Name       string      `json:"name"`
-	Path       string      `json:"path"`
-	Method     string      `json:"method"`
-	Parameters []Parameter `json:"parameters"`
+	Name       string      `json:"name" binding:"required"`
+	Path       string      `json:"path" binding:"required"`
+	Method     string      `json:"method" binding:"required"`
+	Parameters []Parameter `json:"parameters" binding:"required"`
 }
 
 type Resource struct {
@@ -38,11 +38,11 @@ type Resource struct {
 }
 
 type ResourceInput struct {
-	Name         string     `json:"name"`
-	FriendlyName string     `json:"friendlyName"`
-	AppID        string     `json:"appId"`
-	Properties   []Property `json:"properties"`
-	Endpoints    []Endpoint `json:"endpoints"`
+	Name         string     `json:"name" binding:"required"`
+	FriendlyName string     `json:"friendlyName" binding:"required"`
+	AppID        string     `json:"appId" binding:"required"`
+	Properties   []Property `json:"properties" binding:"required"`
+	Endpoints    []Endpoint `json:"endpoints" binding:"required"`
 }
 
 type ResourceRepo interface {

@@ -11,15 +11,15 @@ type Account struct {
 }
 
 type AccountInput struct {
-	Username        string   `json:"username"`
-	Passkey         string   `json:"passkey"`
-	Groups          []string `json:"groups"`
-	TokenExpiration int      `json:"tokenExpiration"`
+	Username        string   `json:"username" binding:"required"`
+	Passkey         string   `json:"passkey" binding:"required"`
+	Groups          []string `json:"groups" binding:"required"`
+	TokenExpiration int      `json:"tokenExpiration" binding:"required"`
 }
 
 type LoginInput struct {
-	Username string
-	Passkey  string
+	Username string `json:"username" binding:"required"`
+	Passkey  string `json:"passkey" binding:"required"`
 }
 
 type AccountRepo interface {
@@ -31,4 +31,5 @@ type AccountRepo interface {
 type AccountHandlers interface {
 	Add(account AccountInput, userGroups []string) (Account, error)
 	UpdateGroups(id string, groupsToAdd []string, groupsToRemove []string, userGroups []string) error
+	Login(credentials LoginInput) (Account, error)
 }

@@ -8,7 +8,7 @@ type Group struct {
 }
 
 type GroupInput struct {
-	Name string
+	Name string `json:"name" binding:"required"`
 }
 
 type GroupRepo interface {

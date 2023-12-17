@@ -42,9 +42,7 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 
 	apiRouter := r.Group("/api")
 	{
-		apiRouter.POST("/login", func(c *gin.Context) {
-			c.AbortWithStatus(http.StatusNotImplemented)
-		})
+		apiRouter.POST("/login", accountsBindings.Login)
 
 		accountsRouter := apiRouter.Group("/accounts")
 		{

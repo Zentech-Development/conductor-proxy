@@ -17,11 +17,11 @@ type ProxyRequest struct {
 }
 
 type ProxyRequestInput struct {
-	ResourceID string         `json:"resourceId"`
-	Endpoint   string         `json:"endpoint"`
-	Method     string         `json:"method"`
-	Params     map[string]any `json:"params"`
-	Data       map[string]any `json:"data"`
+	ResourceID string         `json:"resourceId" binding:"required"`
+	Endpoint   string         `json:"endpoint" binding:"required"`
+	Method     string         `json:"method" binding:"required"`
+	Params     map[string]any `json:"params" binding:"required"`
+	Data       map[string]any `json:"data" binding:"required"`
 }
 
 type ProxyHandlers interface {

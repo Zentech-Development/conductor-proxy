@@ -66,9 +66,9 @@ func (b *AccountsGinBindings) UpdateGroups(c *gin.Context) {
 		return
 	}
 
-	accountID := c.Param("id")
+	accountUsername := c.Param("id")
 
-	err := b.Handlers.Accounts.UpdateGroups(accountID, input.GroupsToAdd, input.GroupsToRemove, []string{"admin"})
+	err := b.Handlers.Accounts.UpdateGroups(accountUsername, input.GroupsToAdd, input.GroupsToRemove, []string{"admin"})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
@@ -82,5 +82,46 @@ func (b *AccountsGinBindings) UpdateGroups(c *gin.Context) {
 		"statusCode": http.StatusCreated,
 		"message":    fmt.Sprintf("[Request ID: %s]: Updated account groups successfully", c.GetString("requestId")),
 		"data":       map[string]any{},
+	})
+}
+
+func (b *AccountsGinBindings) Login(c *gin.Context) {
+	var input domain.LoginInput
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"statusCode": http.StatusBadRequest,
+			"message":    fmt.Sprintf("[Request ID: %s]: Failed to parse request", c.GetString("requestId")),
+			"data":       map[string]any{},
+		})
+		return
+	}
+
+	account, err := b.Handlers.Accounts.Login(input)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"statusCode": http.StatusUnauthorized,
+			"message":    fmt.Sprintf("[Request ID: %s]: Failed to login", c.GetString("requestId")),
+			"data":       map[string]any{},
+		})
+		return
+	}
+
+	token, err := getAccessToken(input.Username, account.Groups, account.TokenExpiration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"statusCode": http.StatusInternalServerError,
+			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while logging in %s", c.GetString("requestId"), err.Error()),
+			"data":       map[string]any{},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"statusCode": http.StatusOK,
+		"message":    fmt.Sprintf("[Request ID: %s]: Login successful", c.GetString("requestId")),
+		"data": map[string]any{
+			"token": token,
+		},
 	})
 }

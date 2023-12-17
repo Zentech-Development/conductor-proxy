@@ -156,9 +156,9 @@ virtual API.
 ##### Responses
 > | http code     | content-type                      | response                                                            |
 > |---------------|-----------------------------------|---------------------------------------------------------------------|
-> | `201` | `application/json` | `{"statusCode": 201, "message": "Logged in successfully", "data": {"token": "ey...."}}` |
+> | `200` | `application/json` | `{"statusCode": 200, "message": "Login successful", "data": {"token": "ey...."}}` |
 > | `400` | `application/json` | `{"statusCode": 400, "message": "Bad request", "data": {}}` |
-> | `403` | `application/json` | `{"statusCode": 403, "message": "Bad credentials", "data": {}}` |
+> | `401` | `application/json` | `{"statusCode": 403, "message": "Failed to login", "data": {}}` |
 </details>
 
 ------------------------------------------------------------------------------------------
@@ -321,7 +321,6 @@ virtual API.
 </details>
 
 ------------------------------------------------------------------------------------------
-
 
 ## Proxy API
 ### Proxy Request
