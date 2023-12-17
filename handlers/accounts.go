@@ -6,6 +6,7 @@ import (
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/slices"
 )
 
@@ -32,10 +33,15 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 		return domain.Account{}, errors.New("Account name is not allowed")
 	}
 
+	hashedPasskey, err := hashPassword(account.Passkey)
+	if err != nil {
+		return domain.Account{}, errors.New("Failed to generate password hash")
+	}
+
 	accountToSave := domain.Account{
 		ID:              uuid.NewString(),
 		Username:        account.Username,
-		Passkey:         account.Passkey, // TODO: HASH THIS
+		Passkey:         hashedPasskey,
 		Groups:          account.Groups,
 		TokenExpiration: account.TokenExpiration,
 	}
@@ -82,4 +88,21 @@ func (h AccountHandler) UpdateGroups(id string, groupsToAdd []string, groupsToRe
 	}
 
 	return nil
+}
+
+const hashCost = 12
+
+func hashPassword(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), hashCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hash), nil
+}
+
+func checkPassword(password string, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+
+	return err == nil
 }
