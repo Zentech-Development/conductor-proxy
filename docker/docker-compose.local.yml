@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  redis0:
+    container_name: redis0
+    image: redis:7.2-alpine
+    ports:
+      - "127.0.0.1:6379:6379/tcp"
+    volumes:
+      - conductor-redis-data:/data
+    command: --save 20 1 --loglevel debug
+  redis-ui:
+    container_name: redis-ui
+    image: redislabs/redisinsight:1.14.0
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - conductor-redis-ui-data:/db
+
+volumes:
+  conductor-redis-data:
+  conductor-redis-ui-data:

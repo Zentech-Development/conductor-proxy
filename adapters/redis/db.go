@@ -1,6 +1,7 @@
 package adapters
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
@@ -24,14 +25,20 @@ type RedisRepo struct {
 type RedisRepoConfig struct {
 	Host     string
 	Password string
+	Mock     string
 }
 
 func NewRedisRepo(config RedisRepoConfig) domain.Repos {
 	client := redis.NewClient(&redis.Options{
-		Addr:     config.Host,
-		Password: config.Password,
-		DB:       0,
+		Addr: config.Host,
+		// Password: config.Password,
+		DB: 0,
 	})
+
+	if _, err := client.Ping(context.Background()).Result(); err != nil {
+		fmt.Print(err.Error())
+		panic("Connection to Redis failed")
+	}
 
 	return domain.Repos{
 		Apps:      newRedisAppRepo(client),

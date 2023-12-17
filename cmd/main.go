@@ -5,14 +5,17 @@ import (
 
 	redisAdapters "github.com/Zentech-Development/conductor-proxy/adapters/redis"
 	bindings "github.com/Zentech-Development/conductor-proxy/bindings/gin"
+	"github.com/Zentech-Development/conductor-proxy/config"
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/Zentech-Development/conductor-proxy/handlers"
 )
 
 func main() {
+	config := config.GetConfig()
+
 	redisRepo := redisAdapters.NewRedisRepo(redisAdapters.RedisRepoConfig{
-		Host:     "localhost:7329",
-		Password: "password123",
+		Host:     config.RedisHost,
+		Password: config.RedisPassword,
 	})
 
 	adapters := domain.Adapters{
@@ -33,10 +36,9 @@ func main() {
 	}
 
 	server := bindings.NewHTTPServerBinding(handlers, bindings.HTTPServerBindingConfig{
-		Host:      ":8000",
-		SecretKey: "asdf1234",
-		GinMode:   "debug",
+		SecretKey: config.SecretKey,
+		GinMode:   config.GinMode,
 	})
 
-	log.Fatal(server.Run())
+	log.Fatal(server.Run(config.Host))
 }

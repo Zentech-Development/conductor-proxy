@@ -10,7 +10,6 @@ import (
 )
 
 type HTTPServerBindingConfig struct {
-	Host      string
 	SecretKey string
 	GinMode   string
 }

@@ -68,7 +68,7 @@ services:
     environment:
       - CONDUCTOR_DATABASE=sqlite # sqlite, postgres, mongo, redis
       - CONDUCTOR_SECURE=false
-      - CONDUCTOR_PORT=7480
+      - CONDUCTOR_HOST=localhost:7480
     ports:
       - "7480:7480"
 ```
@@ -82,7 +82,7 @@ TODO
 # Configuration Options
 ## Environment Variables
 
-### CONDUCTOR_DATABASE (Required)
+### CONDUCTOR_DATABASE (Optional, defaults to sqlite)
 Sets the database to use for persisting app and resource definitions and encrypted
 tokens. Possible values are `sqlite`, `postgres`, `mongo`, `redis`.
 
@@ -90,18 +90,26 @@ If set to `sqlite`, Conductor will use a SQLite database in itself. A volume
 should be configured to save this data over container restarts. `CONDUCTOR_SECURE` should
 probably be set to `false`, since this should only be used locally for development.
 
-If set to `redis`, additional variables `REDIS_HOST`, and `REDIS_PASSWORD` must be supplied.
+If set to `redis`, additional variables `CONDUCTOR_REDIS_HOST`, and `CONDUCTOR_REDIS_PASSWORD` must be supplied.
 
-### CONDUCTOR_SECURE (Required)
+### CONDUCTOR_SECURE (Optional, defaults to true)
 Sets Conductor to allow non-https requests, allow unauthenticated requests. This should NEVER
 be `false` in production.
 
-### CONDUCTOR_PORT (Required)
-Sets the port that Conductor will listen to for incoming requests.
+### CONDUCTOR_HOST (Optional, defaults to localhost:8080)
+Hostname and port that Conductor will listen for traffic on.
 
 ### CONDUCTOR_DEFAULT_TOKEN_TIMEOUT (Optional, defaults to 1 hour)
 Sets the default expiration time for account logins to use if the account does not have a 
 custom value set. In seconds. A value of 0 means the generated tokens will never expire.
+
+### CONDUCTOR_GIN_MODE (Optional, defaults to release)
+Sets the GIN_MODE variable passed into Gin. Probably should be release unless you are developing
+Conductor.
+
+### CONDUCTOR_SECRET_KEY (Required)
+Sets the secret key to be used for signing and verifying access tokens. Should be random and longer
+than 36 characters.
 
 
 # Concepts
@@ -244,14 +252,14 @@ virtual API.
 
 ### Change Account Groups
 <details>
- <summary><code>PUT</code> <code><b>/api/accounts/groups</b></code></summary>
+ <summary><code>PUT</code> <code><b>/api/accounts/:id</b></code></summary>
 
  If running in secure mode, only admins will be able to do this.
 
 ##### Parameters
 > | name |  type | data type |description |
 > |------|-------|-----------|------------|
-> | username | body (required) | string | Username of user or service account |
+> | id | path (required) | string | ID of account to update |
 > | groupsToAdd | body (optional) | string array | List of groups to add the user to |
 > | groupsToRemove | body (optional) | string array | List of groups to remove the user from |
 
