@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Zentech-Development/conductor-proxy/config"
+	"github.com/Zentech-Development/conductor-proxy/pkg/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 

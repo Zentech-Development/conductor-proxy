@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
-	"github.com/Zentech-Development/conductor-proxy/proxy"
+	"github.com/Zentech-Development/conductor-proxy/pkg/proxy"
 )
 
 type ProxyHandler struct {

@@ -5,9 +5,9 @@ import (
 
 	redisAdapters "github.com/Zentech-Development/conductor-proxy/adapters/redis"
 	bindings "github.com/Zentech-Development/conductor-proxy/bindings/gin"
-	"github.com/Zentech-Development/conductor-proxy/config"
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/Zentech-Development/conductor-proxy/handlers"
+	"github.com/Zentech-Development/conductor-proxy/pkg/config"
 )
 
 func main() {
