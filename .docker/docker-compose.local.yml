@@ -10,6 +10,7 @@ services:
       - redis:/var/lib/redis
       - redis-config:/usr/local/etc/redis/redis.conf
     command: redis-server --save 20 1 --loglevel debug
+
   redis-ui:
     container_name: redis-ui
     image: redislabs/redisinsight:1.14.0
@@ -17,6 +18,22 @@ services:
       - "127.0.0.1:8001:8001"
     volumes:
       - redis-ui:/db
+
+  conductor-proxy:
+    container_name: conductor-proxy
+    build:
+      dockerfile: ./.docker/Dockerfile
+      context: ../
+    ports:
+      - "8000:8000"
+    environment:
+      - CONDUCTOR_PORT=8000
+      - CONDUCTOR_SECURE=false
+      - CONDUCTOR_DATABASE=redis
+      - CONDUCTOR_DEFAULT_TOKEN_TIMEOUT=60
+      - CONDUCTOR_GIN_MODE=debug
+      - CONDUCTOR_SECRET_KEY=87nhya8byudgfysugefi2v72y98nymfjducnj98syfb7
+      - CONDUCTOR_REDIS_HOST=redis0:6379
 
 volumes:
   redis:

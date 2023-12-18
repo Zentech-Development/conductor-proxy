@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"slices"
 	"strconv"
@@ -47,7 +48,7 @@ func GetConfig() *ConductorConfig {
 
 func NewConfig(envFilePath string) *ConductorConfig {
 	if err := godotenv.Load(envFilePath); err != nil {
-		panic("Failed to load .env file")
+		fmt.Println("Failed to load .env file, using system environment variables")
 	}
 
 	conductorConfig := &ConductorConfig{
