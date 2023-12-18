@@ -38,7 +38,7 @@ func GetConfig() *ConductorConfig {
 		defer lock.Unlock()
 
 		if config == nil {
-			config = NewConfig("./config/.env")
+			config = NewConfig("./pkg/config/.env")
 		}
 	}
 
