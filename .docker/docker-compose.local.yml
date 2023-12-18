@@ -7,16 +7,18 @@ services:
     ports:
       - "127.0.0.1:6379:6379/tcp"
     volumes:
-      - conductor-redis-data:/data
-    command: --save 20 1 --loglevel debug
+      - redis:/var/lib/redis
+      - redis-config:/usr/local/etc/redis/redis.conf
+    command: redis-server --save 20 1 --loglevel debug
   redis-ui:
     container_name: redis-ui
     image: redislabs/redisinsight:1.14.0
     ports:
       - "127.0.0.1:8001:8001"
     volumes:
-      - conductor-redis-ui-data:/db
+      - redis-ui:/db
 
 volumes:
-  conductor-redis-data:
-  conductor-redis-ui-data:
+  redis:
+  redis-config:
+  redis-ui:

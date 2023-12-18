@@ -375,7 +375,7 @@ coming soon.
 
 ## Development Setup
 To run the Conductor Proxy locally, use the following commands. Conductor Proxy requires
-Go 1.21.5.s
+Go 1.21.5. Docker must be installed in your system to use the docker-compose commands.
 ```sh
 git clone https://github.com/Zentech-Development/conductor-proxy.git
 cd ./conductor-proxy/
@@ -384,4 +384,5 @@ go mod download
 go build ./cmd/main.go # outputs executable called main
 go run ./cmd/main.go # runs the application
 go test ./... # runs all tests
+docker-compose -f ./.docker/docker-compose.local.yml up # run Conductor Proxy with Redis
 ```
