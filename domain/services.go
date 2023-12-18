@@ -2,7 +2,7 @@ package domain
 
 import "context"
 
-type App struct {
+type Service struct {
 	ID           string
 	Name         string
 	FriendlyName string
@@ -12,7 +12,7 @@ type App struct {
 	Type         string
 }
 
-type AppInput struct {
+type ServiceInput struct {
 	Name         string   `json:"name" binding:"required"`
 	FriendlyName string   `json:"friendlyName" binding:"required"`
 	Host         string   `json:"host" binding:"required"`
@@ -20,17 +20,17 @@ type AppInput struct {
 	UserGroups   []string `json:"userGroups" binding:"required"`
 }
 
-type AppRepo interface {
-	GetByID(ctx context.Context, id string) (App, error)
-	Add(ctx context.Context, app App) (App, error)
+type ServiceRepo interface {
+	GetByID(ctx context.Context, id string) (Service, error)
+	Add(ctx context.Context, service Service) (Service, error)
 }
 
-type AppHandlers interface {
-	GetByID(id string, userGroups []string) (App, error)
-	Add(app AppInput, userGroups []string) (App, error)
+type ServiceHandlers interface {
+	GetByID(id string, userGroups []string) (Service, error)
+	Add(service ServiceInput, userGroups []string) (Service, error)
 }
 
 const (
-	AppTypeHTTP  = "http"
-	AppTypeHTTPS = "https"
+	ServiceTypeHTTP  = "http"
+	ServiceTypeHTTPS = "https"
 )

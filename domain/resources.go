@@ -32,7 +32,7 @@ type Resource struct {
 	ID           string     `json:"id"`
 	Name         string     `json:"name"`
 	FriendlyName string     `json:"friendlyName"`
-	AppID        string     `json:"appId"`
+	ServiceID    string     `json:"serviceId"`
 	Properties   []Property `json:"properties"`
 	Endpoints    []Endpoint `json:"endpoints"`
 }
@@ -40,7 +40,7 @@ type Resource struct {
 type ResourceInput struct {
 	Name         string     `json:"name" binding:"required"`
 	FriendlyName string     `json:"friendlyName" binding:"required"`
-	AppID        string     `json:"appId" binding:"required"`
+	ServiceID    string     `json:"serviceId" binding:"required"`
 	Properties   []Property `json:"properties" binding:"required"`
 	Endpoints    []Endpoint `json:"endpoints" binding:"required"`
 }

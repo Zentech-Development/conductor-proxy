@@ -1,7 +1,6 @@
 package bindings
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
@@ -33,7 +32,7 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 	})
 
 	accountsBindings := newAccountsGinBinding(h)
-	appsBindings := newAppsGinBinding(h)
+	servicesBindings := newServicesGinBinding(h)
 	groupsBindings := newGroupsGinBinding(h)
 	resourcesBindings := newResourcesGinBinding(h)
 	proxyBindings := newProxyGinBinding(h)
@@ -61,9 +60,9 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 			})
 		}
 
-		appsRouter := apiRouter.Group("/apps")
+		servicesRouter := apiRouter.Group("/services")
 		{
-			appsRouter.POST("/", appsBindings.Post)
+			servicesRouter.POST("/", servicesBindings.Post)
 		}
 
 		resourceRouter := apiRouter.Group("/resources")
@@ -73,16 +72,4 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 	}
 
 	return r
-}
-
-func sendResult(w http.ResponseWriter, response domain.ProxyResponse, statusCode int) {
-	responseSerialized, err := json.Marshal(response)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(statusCode)
-
-	w.Write(responseSerialized)
 }

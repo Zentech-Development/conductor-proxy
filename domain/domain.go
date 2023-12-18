@@ -2,7 +2,7 @@ package domain
 
 type Repos struct {
 	Resources ResourceRepo
-	Apps      AppRepo
+	Services  ServiceRepo
 	Groups    GroupRepo
 	Accounts  AccountRepo
 }
@@ -11,7 +11,7 @@ type Logger struct{}
 
 type Handlers struct {
 	Resources ResourceHandlers
-	Apps      AppHandlers
+	Services  ServiceHandlers
 	Groups    GroupHandlers
 	Accounts  AccountHandlers
 	Proxy     ProxyHandlers

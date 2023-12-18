@@ -10,13 +10,13 @@ import (
 
 const (
 	resourceKey = "resource"
-	appKey      = "app"
+	serviceKey  = "service"
 	accountKey  = "account"
 	groupKey    = "group"
 )
 
 type RedisRepo struct {
-	Apps      RedisAppRepo
+	Services  RedisServiceRepo
 	Accounts  RedisAccountRepo
 	Resources RedisResourceRepo
 	Groups    RedisGroupRepo
@@ -41,7 +41,7 @@ func NewRedisRepo(config RedisRepoConfig) domain.Repos {
 	}
 
 	return domain.Repos{
-		Apps:      newRedisAppRepo(client),
+		Services:  newRedisServiceRepo(client),
 		Accounts:  newRedisAccountRepo(client),
 		Resources: newRedisResourceRepo(client),
 		Groups:    newRedisGroupRepo(client),

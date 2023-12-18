@@ -13,7 +13,7 @@ func getValidRequest() domain.ProxyRequest {
 		Method:    "GET",
 		Endpoint:  "Get All Things",
 		Resource:  getValidResource(),
-		App:       getValidApp(),
+		Service:   getValidService(),
 	}
 }
 
@@ -22,7 +22,7 @@ func getValidResource() domain.Resource {
 		ID:           "15",
 		Name:         "things",
 		FriendlyName: "Things",
-		AppID:        "72",
+		ServiceID:    "72",
 		Properties: []domain.Property{
 			{
 				Name:         "prop1",
@@ -54,15 +54,15 @@ func getValidResource() domain.Resource {
 	}
 }
 
-func getValidApp() domain.App {
-	return domain.App{
+func getValidService() domain.Service {
+	return domain.Service{
 		ID:           "72",
 		Name:         "my-app",
 		FriendlyName: "My App",
 		Host:         "localhost:8001",
 		AdminGroups:  []string{"my-app-admins"},
 		UserGroups:   []string{"my-app-users", "my-app-other-users"},
-		Type:         domain.AppTypeHTTP,
+		Type:         domain.ServiceTypeHTTP,
 	}
 }
 

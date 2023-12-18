@@ -8,20 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AppsGinBindings struct {
+type ServicesGinBindings struct {
 	Handlers domain.Handlers
 }
 
-func newAppsGinBinding(handlers domain.Handlers) *AppsGinBindings {
-	return &AppsGinBindings{
+func newServicesGinBinding(handlers domain.Handlers) *ServicesGinBindings {
+	return &ServicesGinBindings{
 		Handlers: handlers,
 	}
 }
 
-func (b *AppsGinBindings) Post(c *gin.Context) {
-	var appInput domain.AppInput
+func (b *ServicesGinBindings) Post(c *gin.Context) {
+	var serviceInput domain.ServiceInput
 
-	if err := c.ShouldBindJSON(&appInput); err != nil {
+	if err := c.ShouldBindJSON(&serviceInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"statusCode": http.StatusBadRequest,
 			"message":    fmt.Sprintf("[Request ID: %s]: Failed to parse request", c.GetString("requestId")),
@@ -30,11 +30,11 @@ func (b *AppsGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	app, err := b.Handlers.Apps.Add(appInput, []string{"admin"})
+	service, err := b.Handlers.Services.Add(serviceInput, []string{"admin"})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
-			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while adding app %s", c.GetString("requestId"), err.Error()),
+			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while adding service %s", c.GetString("requestId"), err.Error()),
 			"data":       map[string]any{},
 		})
 		return
@@ -42,9 +42,9 @@ func (b *AppsGinBindings) Post(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{
 		"statusCode": http.StatusCreated,
-		"message":    fmt.Sprintf("[Request ID: %s]: Added app successfully", c.GetString("requestId")),
+		"message":    fmt.Sprintf("[Request ID: %s]: Added service successfully", c.GetString("requestId")),
 		"data": map[string]any{
-			"app": app,
+			"service": service,
 		},
 	})
 }

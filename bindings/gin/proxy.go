@@ -40,7 +40,7 @@ func (b *ProxyGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	app, err := b.Handlers.Apps.GetByID(requestInput.ResourceID, make([]string, 0))
+	service, err := b.Handlers.Services.GetByID(requestInput.ResourceID, make([]string, 0))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"statusCode": http.StatusInternalServerError,
@@ -53,7 +53,7 @@ func (b *ProxyGinBindings) Post(c *gin.Context) {
 	request := domain.ProxyRequest{
 		RequestID: c.GetString("requestId"),
 		Resource:  resource,
-		App:       app,
+		Service:   service,
 		Endpoint:  requestInput.Endpoint,
 		Method:    requestInput.Method,
 		Data:      requestInput.Data,

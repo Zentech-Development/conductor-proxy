@@ -21,14 +21,14 @@ func main() {
 	adapters := domain.Adapters{
 		Repos: domain.Repos{
 			Resources: redisRepo.Resources,
-			Apps:      redisRepo.Apps,
+			Services:  redisRepo.Services,
 			Groups:    redisRepo.Groups,
 			Accounts:  redisRepo.Accounts,
 		},
 	}
 
 	handlers := domain.Handlers{
-		Apps:      handlers.NewAppHandler(&adapters),
+		Services:  handlers.NewServiceHandler(&adapters),
 		Accounts:  handlers.NewAccountHandler(&adapters),
 		Groups:    handlers.NewGroupHandler(&adapters),
 		Resources: handlers.NewResourceHandler(&adapters),

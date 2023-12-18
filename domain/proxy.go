@@ -9,7 +9,7 @@ type ProxyResponse struct {
 type ProxyRequest struct {
 	RequestID string         `json:"requestId"`
 	Resource  Resource       `json:"resource"`
-	App       App            `json:"app"`
+	Service   Service        `json:"service"`
 	Endpoint  string         `json:"endpoint"`
 	Method    string         `json:"method"`
 	Params    map[string]any `json:"params"`

@@ -26,17 +26,17 @@ func (h ResourceHandler) GetByID(id string, userGroups []string) (domain.Resourc
 		return domain.Resource{}, err
 	}
 
-	app, err := h.Adapters.Repos.Apps.GetByID(ctx, resource.AppID)
+	service, err := h.Adapters.Repos.Services.GetByID(ctx, resource.ServiceID)
 	if err != nil {
-		return domain.Resource{}, errors.New("Failed to find app")
+		return domain.Resource{}, errors.New("failed to find service")
 	}
 
-	appHasGroups := (len(app.AdminGroups) + len(app.UserGroups)) > 0
-	isAppUser := checkForGroupMatch(userGroups, app.UserGroups)
-	isAppAdmin := checkForGroupMatch(userGroups, app.AdminGroups)
+	serviceHasGroups := (len(service.AdminGroups) + len(service.UserGroups)) > 0
+	isServiceUser := checkForGroupMatch(userGroups, service.UserGroups)
+	isServiceAdmin := checkForGroupMatch(userGroups, service.AdminGroups)
 
-	if appHasGroups && !isAppAdmin && !isAppUser {
-		return domain.Resource{}, errors.New("Not authorized")
+	if serviceHasGroups && !isServiceAdmin && !isServiceUser {
+		return domain.Resource{}, errors.New("not authorized")
 	}
 
 	return resource, nil
@@ -45,22 +45,22 @@ func (h ResourceHandler) GetByID(id string, userGroups []string) (domain.Resourc
 func (h ResourceHandler) Add(resource domain.ResourceInput, userGroups []string) (domain.Resource, error) {
 	ctx := context.Background()
 
-	app, err := h.Adapters.Repos.Apps.GetByID(ctx, resource.AppID)
+	service, err := h.Adapters.Repos.Services.GetByID(ctx, resource.ServiceID)
 	if err != nil {
-		return domain.Resource{}, errors.New("Failed to find app")
+		return domain.Resource{}, errors.New("failed to find service")
 	}
 
-	isAppAdmin := checkForGroupMatch(userGroups, app.AdminGroups)
+	isServiceAdmin := checkForGroupMatch(userGroups, service.AdminGroups)
 
-	if isAppAdmin {
-		return domain.Resource{}, errors.New("Not authorized")
+	if isServiceAdmin {
+		return domain.Resource{}, errors.New("not authorized")
 	}
 
 	resourceToSave := domain.Resource{
 		ID:           uuid.NewString(),
 		Name:         resource.Name,
-		FriendlyName: app.FriendlyName,
-		AppID:        resource.AppID,
+		FriendlyName: service.FriendlyName,
+		ServiceID:    resource.ServiceID,
 	}
 
 	savedResource, err := h.Adapters.Repos.Resources.Add(ctx, resourceToSave)

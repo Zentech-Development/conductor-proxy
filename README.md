@@ -29,8 +29,7 @@ proxy, which will then construct the correct request to actually make to the res
 response, and send a standardized response back. This process can handle request parameters, 
 authentication, and more.
 
-Conductor is distributed as a standalone Docker image, binaries, and a Go package which can be
-used to use the Conductor Proxy directly in your Go project.
+Conductor is distributed as a standalone Docker image and as native binaries.
 
 In the future there will be official clients for calling the Conductor Proxy using various
 programming languages, starting with Go, and a CLI.
@@ -76,14 +75,11 @@ services:
 ## Binary - Ubuntu
 TODO
 
-## Go Package
-TODO
-
 # Configuration Options
 ## Environment Variables
 
 ### CONDUCTOR_DATABASE (Optional, defaults to sqlite)
-Sets the database to use for persisting app and resource definitions and encrypted
+Sets the database to use for persisting service and resource definitions and encrypted
 tokens. Possible values are `sqlite`, `postgres`, `mongo`, `redis`.
 
 If set to `sqlite`, Conductor will use a SQLite database in itself. A volume 
@@ -112,17 +108,43 @@ Sets the secret key to be used for signing and verifying access tokens. Should b
 than 36 characters.
 
 
-# Concepts
+# Running Conductor Proxy
 ## Accounts
-TODO
+Accounts are representations of human or service users that has a username, password, groups, and
+a token expiration. When an account logs in, an access token is generated for that user's groups
+and expiration time, giving them access to other endpoints in the API. The access token must be
+passed in a request header called X-CONDUCTOR-TOKEN for each subsequent request after logging in.
+
+Accounts can be added, removed, and have their groups updated.
+
+### Token Expiration
+Each account has a token expiration time. This value is the expiration time, in seconds, of any
+access token generated for that account. A value of 0 means no expiration. This is useful for 
+controlling how often a user or service must re-authenticate.
 
 ## Groups
-TODO
+Groups are simply a string value. Accounts have a list of groups they are in. Resources
+also have a list of groups whose user's may administer or use that resource.
+
+Groups can be added and removed.
+
+If a group is attempted to be removed while it is listed in a user, resource, or service's groups, 
+the request will be rejected.
 
 ## Services
-TODO
+A service is an application which provides access to endpoints for one or more resources. A service
+can be defined with a host name, base path for all resource endpoint paths, details about the protocol
+it uses (HTTP and HTTPS are supported), and authentication requirements. If there are two resources
+located on the same service that use different values for any of these attributes, then there should
+really be two different services created in Conductor.
 
 ## Resources
+Resources belong to one service and are a definition of a particular object type, its properties,
+and the endpoints available for it.
+
+Resources hold a list of groups which may administer them, meaning update or remove the resource, and 
+a list of groups which may use them in the proxy endpoint.
+
 ### Parameters
 Valid Data Types by Param Type:
 Header: string, int, bool
@@ -138,7 +160,7 @@ TODO
 
 # Conductor Proxy API Reference
 There are two APIs to interact with- the proxy and the admin APIs. The admin API is used
-to manage apps, resources, and accounts. The proxy is used to use the Conductor Proxy
+to manage groups, services, resources, and accounts. The proxy is used to use the Conductor Proxy
 virtual API.
 
 ## Admin API
@@ -273,20 +295,18 @@ virtual API.
 
 ------------------------------------------------------------------------------------------
 
-### Add App
+### Add Service
 <details>
- <summary><code>POST</code> <code><b>/api/apps</b></code></summary>
-
- If running in secure mode, only admins will be able to do this.
+ <summary><code>POST</code> <code><b>/api/services</b></code></summary>
 
 ##### Parameters
 > | name |  type | data type |description |
 > |------|-------|-----------|------------|
-> | name | body (required) | string | Name of app |
-> | friendlyName | body (required) | string | Readble name of app |
-> | host | body (required) | string | Hostname of server |
-> | adminGroups | body (required) | string array | List of groups that can admin this app |
-> | userGroups | body (required) | string array | List of groups that can use this app |
+> | name | body (required) | string | Name of service |
+> | friendlyName | body (required) | string | Readble name of service |
+> | host | body (required) | string | Hostname of service |
+> | adminGroups | body (required) | string array | List of groups that can admin this service |
+> | userGroups | body (required) | string array | List of groups that can use this service |
 
 ##### Responses
 > | http code     | content-type                      | response                                                            |
@@ -301,8 +321,6 @@ virtual API.
 ### Add Resource
 <details>
  <summary><code>POST</code> <code><b>/api/resources</b></code></summary>
-
- If running in secure mode, only admins will be able to do this.
 
 ##### Parameters
 > | name |  type | data type |description |
@@ -354,3 +372,16 @@ virtual API.
 # Contributing
 If you'd like to contribute to the project, awesome! Documentation for Contributing is
 coming soon.
+
+## Development Setup
+To run the Conductor Proxy locally, use the following commands. Conductor Proxy requires
+Go 1.21.5.s
+```sh
+git clone https://github.com/Zentech-Development/conductor-proxy.git
+cd ./conductor-proxy/
+go mod download
+
+go build ./cmd/main.go # outputs executable called main
+go run ./cmd/main.go # runs the application
+go test ./... # runs all tests
+```

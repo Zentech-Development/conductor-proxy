@@ -8,58 +8,58 @@ import (
 	"github.com/google/uuid"
 )
 
-type AppHandler struct {
+type ServiceHandler struct {
 	Adapters *domain.Adapters
 }
 
-func NewAppHandler(adapters *domain.Adapters) AppHandler {
-	return AppHandler{
+func NewServiceHandler(adapters *domain.Adapters) ServiceHandler {
+	return ServiceHandler{
 		Adapters: adapters,
 	}
 }
 
-func (h AppHandler) GetByID(id string, userGroups []string) (domain.App, error) {
+func (h ServiceHandler) GetByID(id string, userGroups []string) (domain.Service, error) {
 	ctx := context.Background()
 
-	app, err := h.Adapters.Repos.Apps.GetByID(ctx, id)
+	service, err := h.Adapters.Repos.Services.GetByID(ctx, id)
 	if err != nil {
-		return domain.App{}, err
+		return domain.Service{}, err
 	}
 
-	appHasGroups := (len(app.AdminGroups) + len(app.UserGroups)) > 0
-	isAppUser := checkForGroupMatch(userGroups, app.UserGroups)
-	isAppAdmin := checkForGroupMatch(userGroups, app.AdminGroups)
+	serviceHasGroups := (len(service.AdminGroups) + len(service.UserGroups)) > 0
+	isServiceUser := checkForGroupMatch(userGroups, service.UserGroups)
+	isServiceAdmin := checkForGroupMatch(userGroups, service.AdminGroups)
 
-	if appHasGroups && !isAppAdmin && !isAppUser {
-		return domain.App{}, errors.New("Not authorized")
+	if serviceHasGroups && !isServiceAdmin && !isServiceUser {
+		return domain.Service{}, errors.New("not authorized")
 	}
 
-	return app, nil
+	return service, nil
 }
 
-func (h AppHandler) Add(app domain.AppInput, userGroups []string) (domain.App, error) {
+func (h ServiceHandler) Add(service domain.ServiceInput, userGroups []string) (domain.Service, error) {
 	ctx := context.Background()
 
 	isAdmin := checkForGroupMatch(userGroups, make([]string, 0))
 
 	if !isAdmin {
-		return domain.App{}, errors.New("Not authorized")
+		return domain.Service{}, errors.New("not authorized")
 	}
 
-	appToSave := domain.App{
+	serviceToSave := domain.Service{
 		ID:           uuid.NewString(),
-		Name:         app.Name,
-		FriendlyName: app.FriendlyName,
-		Host:         app.Host,
-		AdminGroups:  app.AdminGroups,
-		UserGroups:   app.UserGroups,
+		Name:         service.Name,
+		FriendlyName: service.FriendlyName,
+		Host:         service.Host,
+		AdminGroups:  service.AdminGroups,
+		UserGroups:   service.UserGroups,
 		Type:         "http",
 	}
 
-	savedApp, err := h.Adapters.Repos.Apps.Add(ctx, appToSave)
+	savedService, err := h.Adapters.Repos.Services.Add(ctx, serviceToSave)
 	if err != nil {
-		return domain.App{}, nil
+		return domain.Service{}, nil
 	}
 
-	return savedApp, nil
+	return savedService, nil
 }
