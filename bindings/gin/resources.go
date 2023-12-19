@@ -34,7 +34,7 @@ func (b *ResourcesGinBindings) Post(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
-			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while adding resource %s", c.GetString("requestId"), err.Error()),
+			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while adding resource: %s", c.GetString("requestId"), err.Error()),
 			"data":       map[string]any{},
 		})
 		return

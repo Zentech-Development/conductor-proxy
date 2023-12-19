@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -40,12 +41,27 @@ func NewRedisRepo(config RedisRepoConfig) domain.Repos {
 		panic("Connection to Redis failed")
 	}
 
-	return domain.Repos{
+	repos := domain.Repos{
 		Services:  newRedisServiceRepo(client),
 		Accounts:  newRedisAccountRepo(client),
 		Resources: newRedisResourceRepo(client),
 		Groups:    newRedisGroupRepo(client),
 	}
+
+	if _, err := repos.Groups.GetByName(context.Background(), domain.GroupNameAdmin); err != nil {
+		fmt.Println("admin group not found, creating")
+
+		adminGroup := domain.Group{
+			ID:   uuid.NewString(),
+			Name: domain.GroupNameAdmin,
+		}
+
+		if _, err := repos.Groups.Add(context.Background(), adminGroup); err != nil {
+			panic("Failed to automatically create admin group")
+		}
+	}
+
+	return repos
 }
 
 func getRedisKey(model string, id string) string {

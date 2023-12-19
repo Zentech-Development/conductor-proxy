@@ -23,7 +23,7 @@ type LoginInput struct {
 }
 
 type AccountRepo interface {
-	GetByID(ctx context.Context, id string) (Account, error)
+	GetByUsername(ctx context.Context, id string) (Account, error)
 	Add(ctx context.Context, account Account) (Account, error)
 	Update(ctx context.Context, account Account) (Account, error)
 }

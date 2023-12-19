@@ -31,11 +31,10 @@ func (h ResourceHandler) GetByID(id string, userGroups []string) (domain.Resourc
 		return domain.Resource{}, errors.New("failed to find service")
 	}
 
-	serviceHasGroups := (len(service.AdminGroups) + len(service.UserGroups)) > 0
 	isServiceUser := checkForGroupMatch(userGroups, service.UserGroups)
 	isServiceAdmin := checkForGroupMatch(userGroups, service.AdminGroups)
 
-	if serviceHasGroups && !isServiceAdmin && !isServiceUser {
+	if !isAdmin(userGroups) && !isServiceAdmin && !isServiceUser {
 		return domain.Resource{}, errors.New("not authorized")
 	}
 
@@ -52,7 +51,7 @@ func (h ResourceHandler) Add(resource domain.ResourceInput, userGroups []string)
 
 	isServiceAdmin := checkForGroupMatch(userGroups, service.AdminGroups)
 
-	if isServiceAdmin {
+	if !isAdmin(userGroups) && !isServiceAdmin {
 		return domain.Resource{}, errors.New("not authorized")
 	}
 

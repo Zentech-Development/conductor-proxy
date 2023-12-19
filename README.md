@@ -123,13 +123,14 @@ access token generated for that account. A value of 0 means no expiration. This 
 controlling how often a user or service must re-authenticate.
 
 ## Groups
-Groups are simply a string value. Accounts have a list of groups they are in. Resources
-also have a list of groups whose user's may administer or use that resource.
+Groups are simply a string value. Accounts have a list of groups they are in. If a group is attempted 
+to be removed while it is listed in a user, resource, or service's groups, the request will be rejected.
 
 Groups can be added and removed.
 
-If a group is attempted to be removed while it is listed in a user, resource, or service's groups, 
-the request will be rejected.
+There is a default group called "admins" in each Conductor Proxy instance, which users that are able
+to manage users, services, and resources can be added to. The admin group has full permissions 
+within Conductor.
 
 ## Services
 A service is an application which provides access to endpoints for one or more resources. A service
@@ -138,12 +139,15 @@ it uses (HTTP and HTTPS are supported), and authentication requirements. If ther
 located on the same service that use different values for any of these attributes, then there should
 really be two different services created in Conductor.
 
+Services hold a list of group names that are allowed to manage them, meaning make changes to the service
+definition and its resources' definition's. The service also holds a list of group names that are 
+allowed to use its resources in the proxy. Service admins may configure services and their resources,
+but are not given permission to use a resource in the proxy without also being in the service's user
+groups.
+
 ## Resources
 Resources belong to one service and are a definition of a particular object type, its properties,
 and the endpoints available for it.
-
-Resources hold a list of groups which may administer them, meaning update or remove the resource, and 
-a list of groups which may use them in the proxy endpoint.
 
 ### Parameters
 Valid Data Types by Param Type:
@@ -276,7 +280,7 @@ virtual API.
 <details>
  <summary><code>PUT</code> <code><b>/api/accounts/:id</b></code></summary>
 
- If running in secure mode, only admins will be able to do this.
+ Adding groups happens before removing, so if a group appears in both, it will be removed.
 
 ##### Parameters
 > | name |  type | data type |description |

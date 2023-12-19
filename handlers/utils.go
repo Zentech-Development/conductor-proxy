@@ -1,18 +1,20 @@
 package handlers
 
+import "slices"
+
 func checkForGroupMatch(userGroups []string, allowedGroups []string) bool {
-	vals := make(map[string]bool)
-
-	for _, group := range userGroups {
-		vals[group] = true
-
-		if group == "admin" {
+	for _, group := range allowedGroups {
+		if slices.Contains(userGroups, group) {
 			return true
 		}
 	}
 
-	for _, group := range allowedGroups {
-		if _, present := vals[group]; present {
+	return false
+}
+
+func isAdmin(userGroups []string) bool {
+	for _, group := range userGroups {
+		if group == "admin" {
 			return true
 		}
 	}

@@ -34,7 +34,7 @@ func (b *AccountsGinBindings) Post(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
-			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while adding account %s", c.GetString("requestId"), err.Error()),
+			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while adding account: %s", c.GetString("requestId"), err.Error()),
 			"data":       map[string]any{},
 		})
 		return
@@ -72,7 +72,7 @@ func (b *AccountsGinBindings) UpdateGroups(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
-			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while updating account groups %s", c.GetString("requestId"), err.Error()),
+			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while updating account groups: %s", c.GetString("requestId"), err.Error()),
 			"data":       map[string]any{},
 		})
 		return
@@ -111,7 +111,7 @@ func (b *AccountsGinBindings) Login(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
-			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while logging in %s", c.GetString("requestId"), err.Error()),
+			"message":    fmt.Sprintf("[Request ID: %s]: Unexpected error while logging in: %s", c.GetString("requestId"), err.Error()),
 			"data":       map[string]any{},
 		})
 		return

@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
@@ -24,19 +25,23 @@ func NewAccountHandler(adapters *domain.Adapters) AccountHandler {
 func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (domain.Account, error) {
 	ctx := context.Background()
 
-	isAdmin := checkForGroupMatch(userGroups, make([]string, 0))
-
-	if !isAdmin {
-		return domain.Account{}, errors.New("Not authorized")
+	if !isAdmin(userGroups) {
+		return domain.Account{}, errors.New("not authorized")
 	}
 
 	if account.Username == "admin" {
-		return domain.Account{}, errors.New("Account name is not allowed")
+		return domain.Account{}, errors.New("account name is not allowed")
+	}
+
+	for _, group := range userGroups {
+		if _, err := h.Adapters.Repos.Groups.GetByName(ctx, group); err != nil {
+			return domain.Account{}, fmt.Errorf("group name %s not found", group)
+		}
 	}
 
 	hashedPasskey, err := hashPassword(account.Passkey)
 	if err != nil {
-		return domain.Account{}, errors.New("Failed to generate password hash")
+		return domain.Account{}, errors.New("failed to generate password hash")
 	}
 
 	accountToSave := domain.Account{
@@ -60,15 +65,15 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 func (h AccountHandler) Login(credentials domain.LoginInput) (domain.Account, error) {
 	ctx := context.Background()
 
-	account, err := h.Adapters.Repos.Accounts.GetByID(ctx, credentials.Username)
+	account, err := h.Adapters.Repos.Accounts.GetByUsername(ctx, credentials.Username)
 	if err != nil {
 		time.Sleep(time.Second)
-		return domain.Account{}, errors.New("Invalid credentials")
+		return domain.Account{}, errors.New("invalid credentials")
 	}
 
 	if !checkPassword(credentials.Passkey, account.Passkey) {
 		time.Sleep(time.Second)
-		return domain.Account{}, errors.New("Invalid credentials")
+		return domain.Account{}, errors.New("invalid credentials")
 	}
 
 	return account, nil
@@ -77,13 +82,17 @@ func (h AccountHandler) Login(credentials domain.LoginInput) (domain.Account, er
 func (h AccountHandler) UpdateGroups(id string, groupsToAdd []string, groupsToRemove []string, userGroups []string) error {
 	ctx := context.Background()
 
-	isAdmin := checkForGroupMatch(userGroups, make([]string, 0))
-
-	if !isAdmin {
-		return errors.New("Not authorized")
+	if !isAdmin(userGroups) {
+		return errors.New("not authorized")
 	}
 
-	account, err := h.Adapters.Repos.Accounts.GetByID(ctx, id)
+	for _, group := range groupsToAdd {
+		if _, err := h.Adapters.Repos.Groups.GetByName(ctx, group); err != nil {
+			return fmt.Errorf("group name %s not found", group)
+		}
+	}
+
+	account, err := h.Adapters.Repos.Accounts.GetByUsername(ctx, id)
 	if err != nil {
 		return err
 	}

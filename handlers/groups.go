@@ -21,15 +21,16 @@ func NewGroupHandler(adapters *domain.Adapters) GroupHandler {
 func (h GroupHandler) Add(group domain.GroupInput, userGroups []string) (domain.Group, error) {
 	ctx := context.Background()
 
-	isAdmin := checkForGroupMatch(userGroups, make([]string, 0))
-
-	if !isAdmin {
-		return domain.Group{}, errors.New("Not authorized")
+	if !isAdmin(userGroups) {
+		return domain.Group{}, errors.New("not authorized")
 	}
 
-	// TODO: check if group name already exists
-	if group.Name == "admin" {
-		return domain.Group{}, errors.New("Group name is not allowed")
+	if _, err := h.Adapters.Repos.Groups.GetByName(ctx, group.Name); err == nil {
+		return domain.Group{}, errors.New("group name already exists")
+	}
+
+	if group.Name == domain.GroupNameAdmin {
+		return domain.Group{}, errors.New("group name is not allowed")
 	}
 
 	groupToSave := domain.Group{

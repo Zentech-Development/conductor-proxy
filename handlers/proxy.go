@@ -18,7 +18,8 @@ func NewProxyHandler(adapters *domain.Adapters) ProxyHandler {
 }
 
 func (h ProxyHandler) ProxyRequest(request domain.ProxyRequest, userGroups []string) (*domain.ProxyResponse, int) {
-	if !checkForGroupMatch(userGroups, request.Service.UserGroups) && !checkForGroupMatch(userGroups, request.Service.AdminGroups) {
+	if !checkForGroupMatch(userGroups, request.Service.UserGroups) &&
+		!isAdmin(userGroups) {
 		return &domain.ProxyResponse{
 			StatusCode: http.StatusForbidden,
 			Message:    "Account not authorized to access this resource",

@@ -3,6 +3,8 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
+	"slices"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/google/uuid"
@@ -26,11 +28,10 @@ func (h ServiceHandler) GetByID(id string, userGroups []string) (domain.Service,
 		return domain.Service{}, err
 	}
 
-	serviceHasGroups := (len(service.AdminGroups) + len(service.UserGroups)) > 0
 	isServiceUser := checkForGroupMatch(userGroups, service.UserGroups)
 	isServiceAdmin := checkForGroupMatch(userGroups, service.AdminGroups)
 
-	if serviceHasGroups && !isServiceAdmin && !isServiceUser {
+	if !isAdmin(userGroups) && !isServiceAdmin && !isServiceUser {
 		return domain.Service{}, errors.New("not authorized")
 	}
 
@@ -40,10 +41,16 @@ func (h ServiceHandler) GetByID(id string, userGroups []string) (domain.Service,
 func (h ServiceHandler) Add(service domain.ServiceInput, userGroups []string) (domain.Service, error) {
 	ctx := context.Background()
 
-	isAdmin := checkForGroupMatch(userGroups, make([]string, 0))
-
-	if !isAdmin {
+	if !isAdmin(userGroups) {
 		return domain.Service{}, errors.New("not authorized")
+	}
+
+	service.AdminGroups = slices.Compact(append(service.AdminGroups, domain.GroupNameAdmin))
+
+	for _, group := range service.AdminGroups {
+		if _, err := h.Adapters.Repos.Groups.GetByName(ctx, group); err != nil {
+			return domain.Service{}, fmt.Errorf("group name %s not found", group)
+		}
 	}
 
 	serviceToSave := domain.Service{

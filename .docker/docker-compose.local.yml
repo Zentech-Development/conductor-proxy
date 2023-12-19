@@ -27,7 +27,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CONDUCTOR_PORT=8000
+      - CONDUCTOR_HOST=:8000
       - CONDUCTOR_SECURE=false
       - CONDUCTOR_DATABASE=redis
       - CONDUCTOR_DEFAULT_TOKEN_TIMEOUT=60
