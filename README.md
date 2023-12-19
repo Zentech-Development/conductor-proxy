@@ -107,6 +107,11 @@ Conductor.
 Sets the secret key to be used for signing and verifying access tokens. Should be random and longer
 than 36 characters.
 
+### CONDUCTOR_DEFAULT_ADMIN_USERNAME (Optional, defaults to admin)
+Username for initial admin account when Conductor first starts.
+
+### CONDUCTOR_DEFAULT_ADMIN_PASSKEY (Optional, defaults to admin)
+Passkey for initial admin account when Conductor first starts.
 
 # Running Conductor Proxy
 ## Accounts
@@ -116,6 +121,10 @@ and expiration time, giving them access to other endpoints in the API. The acces
 passed in a request header called X-CONDUCTOR-TOKEN for each subsequent request after logging in.
 
 Accounts can be added, removed, and have their groups updated.
+
+When Conductor starts, if there are no admin accounts created yet, it will create the default 
+admin account using the CONDUCTOR_DEFAULT_ADMIN_USERNAME and CONDUCTOR_DEFAULT_ADMIN_PASSKEY
+values. **The very first action to take after starting Conductor the first time is to log in as this user, create a new account in the "admins" group, logging in with the new account, and removing the default account.**
 
 ### Token Expiration
 Each account has a token expiration time. This value is the expiration time, in seconds, of any

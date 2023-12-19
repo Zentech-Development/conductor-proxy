@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
+	conf "github.com/Zentech-Development/conductor-proxy/pkg/config"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -61,9 +63,40 @@ func NewRedisRepo(config RedisRepoConfig) domain.Repos {
 		}
 	}
 
+	conductorConfig := conf.GetConfig()
+
+	addFirstAdminUserIfRequired(client, &repos, conductorConfig.DefaultAdminUsername, conductorConfig.DefaultAdminPasskey)
+
 	return repos
 }
 
 func getRedisKey(model string, id string) string {
 	return fmt.Sprintf("%s:%s", model, id)
+}
+
+func addFirstAdminUserIfRequired(r *redis.Client, repos *domain.Repos, username string, passkey string) {
+	if _, err := repos.Accounts.GetByUsername(context.Background(), username); err == nil {
+		return
+	}
+
+	if _, err := r.Get(context.Background(), firstAdminFlagName).Result(); err != nil {
+		adminUser := domain.Account{
+			ID:              uuid.NewString(),
+			Username:        username,
+			Passkey:         passkey,
+			Groups:          []string{domain.GroupNameAdmin},
+			TokenExpiration: 3600,
+		}
+
+		hash, err := bcrypt.GenerateFromPassword([]byte(adminUser.Passkey), 12)
+		if err != nil {
+			panic(err)
+		}
+
+		adminUser.Passkey = string(hash)
+
+		if _, err := repos.Accounts.Add(context.Background(), adminUser); err != nil {
+			panic("Failed to automically create admin user")
+		}
+	}
 }

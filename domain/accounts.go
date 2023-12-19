@@ -14,7 +14,7 @@ type AccountInput struct {
 	Username        string   `json:"username" binding:"required"`
 	Passkey         string   `json:"passkey" binding:"required"`
 	Groups          []string `json:"groups" binding:"required"`
-	TokenExpiration int      `json:"tokenExpiration" binding:"required"`
+	TokenExpiration int      `json:"tokenExpiration"`
 }
 
 type LoginInput struct {

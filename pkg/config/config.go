@@ -13,14 +13,16 @@ import (
 var lock = &sync.Mutex{}
 
 type ConductorConfig struct {
-	Host                string
-	Database            string
-	Secure              bool
-	SecretKey           string
-	GinMode             string
-	DefaultTokenTimeout int
-	RedisHost           string
-	RedisPassword       string
+	Host                 string
+	Database             string
+	Secure               bool
+	SecretKey            string
+	GinMode              string
+	DefaultTokenTimeout  int
+	RedisHost            string
+	RedisPassword        string
+	DefaultAdminUsername string
+	DefaultAdminPasskey  string
 }
 
 const (
@@ -52,12 +54,14 @@ func NewConfig(envFilePath string) *ConductorConfig {
 	}
 
 	conductorConfig := &ConductorConfig{
-		Host:                "localhost:8080",
-		Database:            DatabaseTypeRedis,
-		Secure:              true,
-		DefaultTokenTimeout: 60 * 60,
-		GinMode:             "release",
-		SecretKey:           "",
+		Host:                 "localhost:8080",
+		Database:             DatabaseTypeRedis,
+		Secure:               true,
+		DefaultTokenTimeout:  60 * 60,
+		GinMode:              "release",
+		SecretKey:            "",
+		DefaultAdminUsername: "admin",
+		DefaultAdminPasskey:  "admin",
 	}
 
 	conductorConfig.SecretKey = os.Getenv("CONDUCTOR_SECRET_KEY")
@@ -96,6 +100,14 @@ func NewConfig(envFilePath string) *ConductorConfig {
 	if conductorConfig.Database == DatabaseTypeRedis {
 		conductorConfig.RedisHost = os.Getenv("CONDUCTOR_REDIS_HOST")
 		conductorConfig.RedisPassword = os.Getenv("CONDUCTOR_REDIS_PASSWORD")
+	}
+
+	if defaultAdminUsername := os.Getenv("CONDUCTOR_DEFAULT_ADMIN_USERNAME"); defaultAdminUsername != "" {
+		conductorConfig.DefaultAdminUsername = defaultAdminUsername
+	}
+
+	if defaultAdminPasskey := os.Getenv("CONDUCTOR_DEFAULT_ADMIN_PASSKEY"); defaultAdminPasskey != "" {
+		conductorConfig.DefaultAdminPasskey = defaultAdminPasskey
 	}
 
 	return conductorConfig

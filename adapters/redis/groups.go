@@ -31,7 +31,7 @@ func (r RedisGroupRepo) Add(ctx context.Context, group domain.Group) (domain.Gro
 		return domain.Group{}, fmt.Errorf("group %s already exists", group.Name)
 	}
 
-	_, err = r.Client.Set(ctx, getRedisKey(resourceKey, group.Name), valToSet, 0).Result()
+	_, err = r.Client.Set(ctx, getRedisKey(groupKey, group.Name), valToSet, 0).Result()
 	if err != nil {
 		return domain.Group{}, err
 	}
@@ -40,7 +40,7 @@ func (r RedisGroupRepo) Add(ctx context.Context, group domain.Group) (domain.Gro
 }
 
 func (r RedisGroupRepo) GetByName(ctx context.Context, name string) (domain.Group, error) {
-	val, err := r.Client.Get(ctx, getRedisKey(serviceKey, name)).Result()
+	val, err := r.Client.Get(ctx, getRedisKey(groupKey, name)).Result()
 	if err != nil {
 		if err == redis.Nil {
 			return domain.Group{}, errors.New("group not found")
