@@ -42,7 +42,7 @@ func getAccessToken(username string, groups []string, expiration int) (string, e
 func verifyAccessToken(signedToken string) (AuthClaims, error) {
 	token, err := jwt.ParseWithClaims(signedToken, &AuthClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(config.GetConfig().SecretKey), nil
-	}, jwt.WithIssuer("conductor-proxy"), jwt.WithExpirationRequired(), jwt.WithLeeway(3*time.Second))
+	}, jwt.WithIssuer("conductor-proxy"))
 
 	if err != nil {
 		return AuthClaims{}, err

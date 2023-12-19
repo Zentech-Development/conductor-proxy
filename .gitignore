@@ -27,3 +27,5 @@ go.work
 main
 
 conductorProxy
+
+__debug*

@@ -58,8 +58,10 @@ func (h ResourceHandler) Add(resource domain.ResourceInput, userGroups []string)
 	resourceToSave := domain.Resource{
 		ID:           uuid.NewString(),
 		Name:         resource.Name,
-		FriendlyName: service.FriendlyName,
+		FriendlyName: resource.FriendlyName,
 		ServiceID:    resource.ServiceID,
+		Properties:   resource.Properties,
+		Endpoints:    resource.Endpoints,
 	}
 
 	savedResource, err := h.Adapters.Repos.Resources.Add(ctx, resourceToSave)

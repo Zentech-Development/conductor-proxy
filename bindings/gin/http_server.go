@@ -71,6 +71,7 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 		}
 	}
 
+	r.Use(requireAccessToken)
 	r.POST("/proxy", proxyBindings.Post)
 
 	return r

@@ -34,6 +34,7 @@ services:
   #     - CONDUCTOR_GIN_MODE=debug
   #     - CONDUCTOR_SECRET_KEY=87nhya8byudgfysugefi2v72y98nymfjducnj98syfb7
   #     - CONDUCTOR_REDIS_HOST=redis0:6379
+  #     - CONDUCTOR_DEFAULT_ADMIN_PASSKEY=password
 
 volumes:
   redis:
