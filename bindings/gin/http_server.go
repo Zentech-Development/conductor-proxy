@@ -37,11 +37,11 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 	resourcesBindings := newResourcesGinBinding(h)
 	proxyBindings := newProxyGinBinding(h)
 
-	r.POST("/proxy", proxyBindings.Post)
-
 	apiRouter := r.Group("/api")
 	{
 		apiRouter.POST("/login", accountsBindings.Login)
+
+		apiRouter.Use(requireAccessToken)
 
 		accountsRouter := apiRouter.Group("/accounts")
 		{
@@ -70,6 +70,8 @@ func NewHTTPServerBinding(h domain.Handlers, config HTTPServerBindingConfig) *gi
 			resourceRouter.POST("/", resourcesBindings.Post)
 		}
 	}
+
+	r.POST("/proxy", proxyBindings.Post)
 
 	return r
 }

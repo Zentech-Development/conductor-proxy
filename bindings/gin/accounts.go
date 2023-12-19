@@ -30,7 +30,9 @@ func (b *AccountsGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	account, err := b.Handlers.Accounts.Add(accountInput, []string{"admin"})
+	userGroups, _ := c.Get("userGroups")
+
+	account, err := b.Handlers.Accounts.Add(accountInput, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,
@@ -68,7 +70,9 @@ func (b *AccountsGinBindings) UpdateGroups(c *gin.Context) {
 
 	accountUsername := c.Param("id")
 
-	err := b.Handlers.Accounts.UpdateGroups(accountUsername, input.GroupsToAdd, input.GroupsToRemove, []string{"admin"})
+	userGroups, _ := c.Get("userGroups")
+
+	err := b.Handlers.Accounts.UpdateGroups(accountUsername, input.GroupsToAdd, input.GroupsToRemove, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,

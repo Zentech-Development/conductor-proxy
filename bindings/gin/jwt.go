@@ -2,9 +2,11 @@ package bindings
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/Zentech-Development/conductor-proxy/pkg/config"
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -50,5 +52,34 @@ func verifyAccessToken(signedToken string) (AuthClaims, error) {
 		return *claims, nil
 	}
 
-	return AuthClaims{}, errors.New("Bad claims")
+	return AuthClaims{}, errors.New("bad claims")
 }
+
+func requireAccessToken(c *gin.Context) {
+	token := c.GetHeader(tokenHeaderName)
+	if token == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"statusCode": http.StatusUnauthorized,
+			"message":    "No access token provided",
+			"data":       map[string]any{},
+		})
+		return
+	}
+
+	claims, err := verifyAccessToken(token)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"statusCode": http.StatusUnauthorized,
+			"message":    "Bad access token provided",
+			"data":       map[string]any{},
+		})
+		return
+	}
+
+	c.Set("userGroups", claims.Groups)
+	c.Set("username", claims.Subject)
+}
+
+const (
+	tokenHeaderName = "X-CONDUCTOR-KEY"
+)

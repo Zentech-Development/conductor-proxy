@@ -30,7 +30,9 @@ func (b *ServicesGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	service, err := b.Handlers.Services.Add(serviceInput, []string{"admin"})
+	userGroups, _ := c.Get("userGroups")
+
+	service, err := b.Handlers.Services.Add(serviceInput, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,

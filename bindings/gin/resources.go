@@ -30,7 +30,9 @@ func (b *ResourcesGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	resource, err := b.Handlers.Resources.Add(resourceInput, []string{"admin"})
+	userGroups, _ := c.Get("userGroups")
+
+	resource, err := b.Handlers.Resources.Add(resourceInput, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,

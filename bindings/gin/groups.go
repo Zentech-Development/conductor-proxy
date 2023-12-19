@@ -30,7 +30,9 @@ func (b *GroupsGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	group, err := b.Handlers.Groups.Add(groupInput, []string{"admin"})
+	userGroups, _ := c.Get("userGroups")
+
+	group, err := b.Handlers.Groups.Add(groupInput, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"statusCode": http.StatusInternalServerError,

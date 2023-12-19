@@ -30,7 +30,9 @@ func (b *ProxyGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	resource, err := b.Handlers.Resources.GetByID(requestInput.ResourceID, make([]string, 0))
+	userGroups, _ := c.Get("userGroups")
+
+	resource, err := b.Handlers.Resources.GetByID(requestInput.ResourceID, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"statusCode": http.StatusNotFound,
@@ -40,7 +42,7 @@ func (b *ProxyGinBindings) Post(c *gin.Context) {
 		return
 	}
 
-	service, err := b.Handlers.Services.GetByID(requestInput.ResourceID, make([]string, 0))
+	service, err := b.Handlers.Services.GetByID(requestInput.ResourceID, userGroups.([]string))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"statusCode": http.StatusInternalServerError,
@@ -60,7 +62,7 @@ func (b *ProxyGinBindings) Post(c *gin.Context) {
 		Params:    requestInput.Params,
 	}
 
-	response, statusCode := b.Handlers.Proxy.ProxyRequest(request, make([]string, 0))
+	response, statusCode := b.Handlers.Proxy.ProxyRequest(request, userGroups.([]string))
 
 	c.JSON(statusCode, gin.H{
 		"statusCode": response.StatusCode,
