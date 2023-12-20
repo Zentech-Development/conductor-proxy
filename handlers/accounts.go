@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Zentech-Development/conductor-proxy/domain"
+	"github.com/Zentech-Development/conductor-proxy/pkg/config"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/slices"
@@ -39,7 +40,7 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 		}
 	}
 
-	hashedPasskey, err := hashPassword(account.Passkey)
+	hashedPasskey, err := hashPassword(account.Passkey, config.GetConfig().JwtHashCost)
 	if err != nil {
 		return domain.Account{}, errors.New("failed to generate password hash")
 	}
@@ -117,10 +118,8 @@ func (h AccountHandler) UpdateGroups(id string, groupsToAdd []string, groupsToRe
 	return nil
 }
 
-const hashCost = 12
-
-func hashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), hashCost)
+func hashPassword(password string, cost int) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), cost)
 	if err != nil {
 		return "", err
 	}

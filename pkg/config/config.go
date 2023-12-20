@@ -23,6 +23,7 @@ type ConductorConfig struct {
 	RedisPassword        string
 	DefaultAdminUsername string
 	DefaultAdminPasskey  string
+	JwtHashCost          int
 }
 
 const (
@@ -62,6 +63,7 @@ func NewConfig(envFilePath string) *ConductorConfig {
 		SecretKey:            "",
 		DefaultAdminUsername: "admin",
 		DefaultAdminPasskey:  "admin",
+		JwtHashCost:          12,
 	}
 
 	conductorConfig.SecretKey = os.Getenv("CONDUCTOR_SECRET_KEY")
