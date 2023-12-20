@@ -3,8 +3,8 @@ package adapters
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
+	"github.com/Zentech-Development/conductor-proxy/adapters"
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/redis/go-redis/v9"
 )
@@ -23,7 +23,7 @@ func (r RedisServiceRepo) GetByID(ctx context.Context, id string) (domain.Servic
 	val, err := r.Client.Get(ctx, getRedisKey(serviceKey, id)).Result()
 	if err != nil {
 		if err == redis.Nil {
-			return domain.Service{}, errors.New("service not found")
+			return domain.Service{}, &adapters.NotFoundError{Name: "service"}
 		}
 
 		return domain.Service{}, err
@@ -46,7 +46,7 @@ func (r RedisServiceRepo) Add(ctx context.Context, service domain.Service) (doma
 
 	_, err = r.Client.Get(ctx, getRedisKey(serviceKey, service.ID)).Result()
 	if err == nil {
-		return domain.Service{}, errors.New("service ID already exists")
+		return domain.Service{}, &adapters.AlreadyExistsError{Name: "service"}
 	}
 
 	_, err = r.Client.Set(ctx, getRedisKey(serviceKey, service.ID), valToSet, 0).Result()
