@@ -34,7 +34,7 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 		return domain.Account{}, errors.New("account name is not allowed")
 	}
 
-	for _, group := range userGroups {
+	for _, group := range account.Groups {
 		if _, err := h.Adapters.Repos.Groups.GetByName(ctx, group); err != nil {
 			return domain.Account{}, fmt.Errorf("group name %s not found", group)
 		}
