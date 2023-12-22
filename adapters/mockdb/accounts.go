@@ -19,7 +19,7 @@ func newMockAccountRepo(data *MockDBData) MockAccountRepo {
 
 func (r MockAccountRepo) GetByUsername(ctx context.Context, id string) (domain.Account, error) {
 	for _, account := range r.Data.Accounts {
-		if account.ID == id {
+		if account.Username == id {
 			return account, nil
 		}
 	}

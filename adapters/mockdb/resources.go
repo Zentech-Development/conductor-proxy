@@ -28,8 +28,19 @@ func (r MockResourceRepo) GetByID(ctx context.Context, id string) (domain.Resour
 }
 
 func (r MockResourceRepo) Add(ctx context.Context, resource domain.Resource) (domain.Resource, error) {
-	if _, err := r.GetByID(ctx, resource.Name); err == nil {
+	if _, err := r.GetByID(ctx, resource.ID); err == nil {
 		return domain.Resource{}, &adapters.AlreadyExistsError{Name: "resource"}
+	}
+
+	foundService := false
+	for _, service := range r.Data.Services {
+		if service.ID == resource.ServiceID {
+			foundService = true
+		}
+	}
+
+	if !foundService {
+		return domain.Resource{}, &adapters.NotFoundError{Name: "service"}
 	}
 
 	r.Data.Resources = append(r.Data.Resources, resource)
