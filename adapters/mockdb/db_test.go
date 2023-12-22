@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewMockDB(t *testing.T) {
-	_ = mockAdapters.NewMockDB(nil)
+	_ = mockAdapters.NewMockDB(nil, "")
 
 	username := "test-admin"
 	adminAccount := &domain.Account{
@@ -21,7 +21,7 @@ func TestNewMockDB(t *testing.T) {
 		TokenExpiration: 0,
 	}
 
-	db := mockAdapters.NewMockDB(adminAccount)
+	db := mockAdapters.NewMockDB(adminAccount, "")
 
 	if _, err := db.Accounts.GetByUsername(context.Background(), username); err != nil {
 		t.Fatal("Failed to create initial admin account")

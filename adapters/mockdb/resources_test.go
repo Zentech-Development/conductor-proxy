@@ -10,7 +10,7 @@ import (
 )
 
 func TestResourceGetByID(t *testing.T) {
-	db := mockAdapters.NewMockDB(nil)
+	db := mockAdapters.NewMockDB(nil, "")
 
 	id := uuid.NewString()
 	name := "test-resource"
@@ -60,7 +60,7 @@ func TestResourceGetByID(t *testing.T) {
 }
 
 func TestResourceAdd(t *testing.T) {
-	db := mockAdapters.NewMockDB(nil)
+	db := mockAdapters.NewMockDB(nil, "")
 
 	id := uuid.NewString()
 	name := "test-resource"
