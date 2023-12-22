@@ -18,7 +18,13 @@ func newMockAccountRepo(data *MockDBData) MockAccountRepo {
 }
 
 func (r MockAccountRepo) GetByUsername(ctx context.Context, id string) (domain.Account, error) {
-	return domain.Account{}, nil
+	for _, account := range r.Data.Accounts {
+		if account.ID == id {
+			return account, nil
+		}
+	}
+
+	return domain.Account{}, &adapters.NotFoundError{Name: "account"}
 }
 
 func (r MockAccountRepo) Add(ctx context.Context, account domain.Account) (domain.Account, error) {
@@ -27,9 +33,16 @@ func (r MockAccountRepo) Add(ctx context.Context, account domain.Account) (domai
 	}
 
 	r.Data.Accounts = append(r.Data.Accounts, account)
-	return domain.Account{}, nil
+	return account, nil
 }
 
 func (r MockAccountRepo) Update(ctx context.Context, account domain.Account) (domain.Account, error) {
-	return domain.Account{}, nil
+	for i, savedAccount := range r.Data.Accounts {
+		if savedAccount.ID == account.ID {
+			r.Data.Accounts[i].Groups = account.Groups
+			return r.Data.Accounts[i], nil
+		}
+	}
+
+	return domain.Account{}, &adapters.NotFoundError{Name: "account"}
 }

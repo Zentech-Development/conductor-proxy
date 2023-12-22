@@ -15,7 +15,7 @@ type MockDB struct {
 	Data *MockDBData
 }
 
-func NewMockDB() *domain.Repos {
+func NewMockDB(initialAdminAccount *domain.Account) *domain.Repos {
 	data := &MockDBData{
 		Accounts:  make([]domain.Account, 0),
 		Groups:    make([]domain.Group, 0),

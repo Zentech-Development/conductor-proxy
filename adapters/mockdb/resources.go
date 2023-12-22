@@ -3,6 +3,7 @@ package adapters
 import (
 	"context"
 
+	"github.com/Zentech-Development/conductor-proxy/adapters"
 	"github.com/Zentech-Development/conductor-proxy/domain"
 )
 
@@ -17,9 +18,20 @@ func newMockResourceRepo(data *MockDBData) MockResourceRepo {
 }
 
 func (r MockResourceRepo) GetByID(ctx context.Context, id string) (domain.Resource, error) {
-	return domain.Resource{}, nil
+	for _, resource := range r.Data.Resources {
+		if resource.ID == id {
+			return resource, nil
+		}
+	}
+
+	return domain.Resource{}, &adapters.NotFoundError{Name: "resource"}
 }
 
 func (r MockResourceRepo) Add(ctx context.Context, resource domain.Resource) (domain.Resource, error) {
-	return domain.Resource{}, nil
+	if _, err := r.GetByID(ctx, resource.Name); err == nil {
+		return domain.Resource{}, &adapters.AlreadyExistsError{Name: "resource"}
+	}
+
+	r.Data.Resources = append(r.Data.Resources, resource)
+	return resource, nil
 }
