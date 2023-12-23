@@ -202,7 +202,7 @@ virtual API.
 <details>
  <summary><code>POST</code> <code><b>/api/accounts</b></code></summary>
 
- If running in secure mode, only admins will be able to do this.
+ Admin only in secure mode.
 
 ##### Parameters
 > | name |  type | data type |description |
@@ -217,16 +217,16 @@ virtual API.
 > |---------------|-----------------------------------|---------------------------------------------------------------------|
 > | `201` | `application/json` | `{"statusCode": 201, "message": "Added account successfully", "data": {}}` |
 > | `400` | `application/json` | `{"statusCode": 400, "message": "Bad request, account name might already exist or group does not", "data": {}}` |
-> | `403` | `application/json` | `{"statusCode": 403, "message": "Forbidden", "data": {}}` |
+> | `403` | `application/json` | `{"statusCode": 403, "message": "Not authorized", "data": {}}` |
 </details>
 
 ------------------------------------------------------------------------------------------
 
-### Remove Account
+### Remove Account (TODO)
 <details>
  <summary><code>DELETE</code> <code><b>/api/accounts/:id</b></code></summary>
 
- If running in secure mode, only admins will be able to do this.
+ Admin only in secure mode.
 
 ##### Parameters
 > | name |  type | data type | description |
@@ -247,7 +247,7 @@ virtual API.
 <details>
  <summary><code>POST</code> <code><b>/api/groups</b></code></summary>
 
- If running in secure mode, only admins will be able to do this.
+ Admin only in secure mode.
 
 ##### Parameters
 > | name |  type | data type | description |
@@ -264,11 +264,11 @@ virtual API.
 
 ------------------------------------------------------------------------------------------
 
-### Remove Group
+### Remove Group (TODO)
 <details>
  <summary><code>DELETE</code> <code><b>/api/groups/:id</b></code></summary>
 
- If running in secure mode, only admins will be able to do this.
+ Admin only in secure mode.
 
 ##### Parameters
 > | name |  type | data type | description |
@@ -289,7 +289,7 @@ virtual API.
 <details>
  <summary><code>PUT</code> <code><b>/api/accounts/:id</b></code></summary>
 
- Adding groups happens before removing, so if a group appears in both, it will be removed.
+ Admin only in secure mode.
 
 ##### Parameters
 > | name |  type | data type |description |
@@ -312,11 +312,13 @@ virtual API.
 <details>
  <summary><code>POST</code> <code><b>/api/services</b></code></summary>
 
+ Admin only in secure mode.
+
 ##### Parameters
 > | name |  type | data type |description |
 > |------|-------|-----------|------------|
 > | name | body (required) | string | Name of service |
-> | friendlyName | body (required) | string | Readble name of service |
+> | friendlyName | body (required) | string | Readable name of service |
 > | host | body (required) | string | Hostname of service |
 > | adminGroups | body (required) | string array | List of groups that can admin this service |
 > | userGroups | body (required) | string array | List of groups that can use this service |
@@ -335,13 +337,16 @@ virtual API.
 <details>
  <summary><code>POST</code> <code><b>/api/resources</b></code></summary>
 
+ Admin or service admin only in secure mode.
+
 ##### Parameters
 > | name |  type | data type |description |
 > |------|-------|-----------|------------|
 > | name | body (required) | string | Name of resource |
-> | friendlyName | body (required) | string | Readble name of resource |
-> | adminGroups | body (required) | string array | List of groups that can admin this resource |
-> | userGroups | body (required) | string array | List of groups that can use this resource |
+> | friendlyName | body (required) | string | Readable name of resource |
+> | serviceId | body (required) | string | ID of service this resource belongs to |
+> | properties | body (required) | Property array | Properties of resource |
+> | endpoints | body (required) | Endpoint array | Endpoints of resource |
 
 ##### Responses
 > | http code     | content-type                      | response                                                            |
@@ -358,7 +363,7 @@ virtual API.
 <details>
  <summary><code>POST</code> <code><b>/proxy</b></code></summary>
 
- If running in secure mode, request must include a valid token and the accounts groups must match the request.
+ If running in secure mode, request must include a valid token and the accounts groups must match the service user or admin groups.
 
 ##### Parameters
 > | name |  type | data type |description |
