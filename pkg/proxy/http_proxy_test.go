@@ -165,7 +165,7 @@ func TestSetDefaultsForMissingRequiredParams(t *testing.T) {
 		"param2": "val2",
 	}
 
-	params, err = setDefaultsForMissingRequiredParams(params, definitions)
+	_, err = setDefaultsForMissingRequiredParams(params, definitions)
 	if err == nil {
 		t.Fatal("Expected error for missing required param1")
 	}
@@ -276,7 +276,7 @@ func TestGetHeaders(t *testing.T) {
 		"param1": []string{"val1"},
 	}
 
-	headers, err = getHeaders(params, definitions)
+	_, err = getHeaders(params, definitions)
 	if err == nil {
 		t.Fatal("Expected error for unsupported type")
 	}
@@ -297,8 +297,164 @@ func TestGetHeaders(t *testing.T) {
 		"param1": 123,
 	}
 
-	headers, err = getHeaders(params, definitions)
+	_, err = getHeaders(params, definitions)
 	if err == nil {
 		t.Fatal("Expected error for wrong value type")
+	}
+}
+
+func TestGetURL(t *testing.T) {
+	definitions := []domain.Parameter{
+		{
+			Name:         "param1",
+			FriendlyName: "Param 1",
+			DataType:     domain.DataTypeString,
+			Required:     false,
+			DefaultValue: "",
+			HasDefault:   false,
+			Type:         domain.ParameterTypePath,
+		},
+	}
+
+	params := map[string]any{
+		"param1": "val1",
+	}
+
+	scheme := "http"
+
+	host := "localhost:8091"
+
+	path := "/api/v1/:param1"
+
+	url, err := getURL(params, definitions, scheme, host, path)
+	if err != nil {
+		t.Fatal("Unexpected error occurred")
+	}
+
+	if url != "http://localhost:8091/api/v1/val1" {
+		t.Fatal("URL generated incorrectly")
+	}
+
+	noURLParamsDefinitions := []domain.Parameter{
+		{
+			Name:         "param1",
+			FriendlyName: "Param 1",
+			DataType:     domain.DataTypeString,
+			Required:     false,
+			DefaultValue: "",
+			HasDefault:   false,
+			Type:         domain.ParameterTypePath,
+		},
+		{
+			Name:         "param2",
+			FriendlyName: "Param 2",
+			DataType:     domain.DataTypeString,
+			Required:     false,
+			DefaultValue: "",
+			HasDefault:   false,
+			Type:         domain.ParameterTypeHeader,
+		},
+	}
+
+	noURLParamsParams := map[string]any{
+		"param2": "val2",
+	}
+
+	url, err = getURL(noURLParamsParams, noURLParamsDefinitions, scheme, host, "/api/v2/:val1")
+	if err != nil {
+		t.Fatal("Unexpected error occurred")
+	}
+
+	if url != "http://localhost:8091/api/v2/:val1" {
+		t.Fatal("URL generated incorrectly")
+	}
+
+	multiParamPath := "/api/v1/:param1/:param1"
+
+	url, err = getURL(params, definitions, scheme, host, multiParamPath)
+	if err != nil {
+		t.Fatal("Unexpected error occurred")
+	}
+
+	if url != "http://localhost:8091/api/v1/val1/val1" {
+		t.Fatal("URL generated incorrectly")
+	}
+
+	badDataTypeParams := map[string]any{
+		"param1": true,
+	}
+
+	if _, err = getURL(badDataTypeParams, definitions, scheme, host, path); err == nil {
+		t.Fatal("Expected bad data type error")
+	}
+}
+
+func TestGetBody(t *testing.T) {
+	definitions := []domain.Parameter{
+		{
+			Name:         "param1",
+			FriendlyName: "Param 1",
+			DataType:     domain.DataTypeString,
+			Required:     false,
+			DefaultValue: map[string]any{},
+			HasDefault:   false,
+			Type:         domain.ParameterTypeBody,
+		},
+		{
+			Name:         "param2",
+			FriendlyName: "Param 2",
+			DataType:     domain.DataTypeObject,
+			Required:     false,
+			DefaultValue: map[string]any{},
+			HasDefault:   false,
+			Type:         domain.ParameterTypeBodyFlat,
+		},
+		{
+			Name:         "param3",
+			FriendlyName: "Param 3",
+			DataType:     domain.DataTypeString,
+			Required:     false,
+			DefaultValue: "",
+			HasDefault:   false,
+			Type:         domain.ParameterTypeHeader,
+		},
+	}
+
+	params := map[string]any{
+		"param1": "val1",
+		"param3": "val3",
+	}
+
+	originalBody := map[string]any{
+		"test":   "asdf",
+		"param1": "old value",
+	}
+
+	body, err := getBody(params, definitions, originalBody)
+	if err != nil {
+		t.Fatal("Unexpcted error occurred")
+	}
+
+	if bodyDict, ok := body.(map[string]any); !ok || bodyDict["test"] != "asdf" || bodyDict["param1"] != "val1" {
+		t.Fatal("Body generated incorrectly")
+	}
+
+	if _, err = getBody(params, definitions, []string{"invalid"}); err == nil {
+		t.Fatal("Expected non-object body with body parameter error")
+	}
+
+	flatParams := map[string]any{
+		"param2": map[string]any{
+			"test": "1234",
+		},
+	}
+
+	flatBody, err := getBody(flatParams, definitions, originalBody)
+	if err != nil {
+		t.Fatal("Unexpcted error occurred")
+	}
+
+	if flatBody, ok := flatBody.(map[string]any); !ok || flatBody["test"] != "1234" {
+		t.Fatal("Body generated incorrectly")
 	}
 }

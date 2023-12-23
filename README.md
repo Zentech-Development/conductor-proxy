@@ -404,3 +404,8 @@ go run ./cmd/main.go # runs the application
 go test ./... # runs all tests
 docker-compose -f ./.docker/docker-compose.local.yml up # run Conductor Proxy with Redis
 ```
+
+# Next Todos
+- Add more DB adapters
+- Add service and resource validation on add
+- Write more test cases

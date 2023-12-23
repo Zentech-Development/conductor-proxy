@@ -53,9 +53,15 @@ func (p *HTTPProxy) GetResponse() (*domain.ProxyResponse, int) {
 		return makeErrorResponse(makeMessage(err.Error(), p.Request.RequestID), http.StatusBadRequest)
 	}
 
-	// TODO: get URL
+	pRequest.URL, err = getURL(p.Request.Params, endpoint.Parameters, p.Request.Service.Type, p.Request.Service.Host, endpoint.Path)
+	if err != nil {
+		return makeErrorResponse(makeMessage(err.Error(), p.Request.RequestID), http.StatusBadRequest)
+	}
 
-	// TODO: get body from request (default) or from body or bodyflat params
+	pRequest.Data, err = getBody(p.Request.Params, endpoint.Parameters, p.Request.Data)
+	if err != nil {
+		return makeErrorResponse(makeMessage(err.Error(), p.Request.RequestID), http.StatusBadRequest)
+	}
 
 	// TODO: make request and process response
 
@@ -69,7 +75,7 @@ func getEndpointDefinition(requestedEndpointName string, resourceEndpoints []dom
 		}
 	}
 
-	return domain.Endpoint{}, errors.New("Endpoint not found in resource endpoints")
+	return domain.Endpoint{}, errors.New("endpoint not found in resource endpoints")
 }
 
 func setDefaultsForMissingRequiredParams(params map[string]any, definitions []domain.Parameter) (map[string]any, error) {
@@ -85,7 +91,7 @@ func setDefaultsForMissingRequiredParams(params map[string]any, definitions []do
 		}
 
 		if !definition.HasDefault {
-			return map[string]any{}, errors.New(fmt.Sprintf("Missing required parameter: %s", definition.Name))
+			return map[string]any{}, fmt.Errorf("missing required parameter: %s", definition.Name)
 		}
 
 		params[definition.Name] = definition.DefaultValue
@@ -107,7 +113,7 @@ func getHeaders(params map[string]any, definitions []domain.Parameter) (map[stri
 		}
 
 		if !slices.Contains(supportedDataTypes, definition.DataType) {
-			return map[string]string{}, errors.New(fmt.Sprintf("Unsupported data type for header param: %s", definition.Name))
+			return map[string]string{}, fmt.Errorf("unsupported data type for header param: %s", definition.Name)
 		}
 
 		if definition.DataType == domain.DataTypeString {
@@ -131,10 +137,74 @@ func getHeaders(params map[string]any, definitions []domain.Parameter) (map[stri
 			}
 		}
 
-		return map[string]string{}, errors.New(fmt.Sprintf("Failed to parse value for %s as %s", definition.Name, definition.DataType))
+		return map[string]string{}, fmt.Errorf("failed to parse value for %s as %s", definition.Name, definition.DataType)
 	}
 
 	return headers, nil
+}
+
+func getURL(
+	params map[string]any,
+	definitions []domain.Parameter,
+	scheme string,
+	host string,
+	path string,
+) (string, error) {
+	url := fmt.Sprintf("%s://%s%s", scheme, host, path)
+
+	supportedDataTypes := []string{domain.DataTypeString, domain.DataTypeInt, domain.DataTypeBool}
+
+	for _, definition := range definitions {
+		val, present := params[definition.Name]
+
+		valToSet := ""
+
+		if !present || definition.Type != domain.ParameterTypePath {
+			continue
+		}
+
+		if !slices.Contains(supportedDataTypes, definition.DataType) {
+			return "", fmt.Errorf("unsupported data type for path param: %s", definition.Name)
+		}
+
+		if stringVal, ok := val.(string); definition.DataType == domain.DataTypeString && ok {
+			valToSet = stringVal
+		} else if intVal, ok := val.(int); definition.DataType == domain.DataTypeInt && ok {
+			valToSet = strconv.Itoa(intVal)
+		} else if boolVal, ok := val.(bool); definition.DataType == domain.DataTypeBool && ok {
+			valToSet = strconv.FormatBool(boolVal)
+		} else {
+			return "", fmt.Errorf("parameter value was bad data type: %s", definition.Name)
+		}
+
+		url = strings.ReplaceAll(url, fmt.Sprintf(":%s", definition.Name), valToSet)
+	}
+
+	return url, nil
+}
+
+func getBody(params map[string]any, definitions []domain.Parameter, originalBody any) (any, error) {
+	body := originalBody
+
+	for _, definition := range definitions {
+		val, present := params[definition.Name]
+
+		if !present || (definition.Type != domain.ParameterTypeBody && definition.Type != domain.ParameterTypeBodyFlat) {
+			continue
+		}
+
+		if definition.Type == domain.ParameterTypeBodyFlat {
+			return val, nil
+		}
+
+		if _, ok := originalBody.(map[string]any); !ok {
+			return nil, errors.New("supplied a non-object as body with body parameter")
+		}
+
+		body.(map[string]any)[definition.Name] = val
+	}
+
+	return body, nil
 }
 
 func makeMessage(message string, requestId string) string {
