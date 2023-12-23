@@ -8,16 +8,6 @@ import (
 	"github.com/Zentech-Development/conductor-proxy/domain"
 )
 
-func getValidRequest() domain.ProxyRequest {
-	return domain.ProxyRequest{
-		RequestID: "123",
-		Method:    "GET",
-		Endpoint:  "Get All Things",
-		Resource:  getValidResource(),
-		Service:   getValidService(),
-	}
-}
-
 func getValidResource() domain.Resource {
 	return domain.Resource{
 		ID:           "15",
@@ -52,18 +42,6 @@ func getValidResource() domain.Resource {
 				},
 			},
 		},
-	}
-}
-
-func getValidService() domain.Service {
-	return domain.Service{
-		ID:           "72",
-		Name:         "my-app",
-		FriendlyName: "My App",
-		Host:         "localhost:8001",
-		AdminGroups:  []string{"my-app-admins"},
-		UserGroups:   []string{"my-app-users", "my-app-other-users"},
-		Type:         domain.ServiceTypeHTTP,
 	}
 }
 
