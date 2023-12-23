@@ -78,7 +78,35 @@ func TestServiceNotAuthorized(t *testing.T) {
 }
 
 func TestServiceGetByID(t *testing.T) {
-	t.Fail()
+	handlers := newHandlers()
+
+	name := "test-service"
+	friendlyName := "Test Service"
+	host := "localhost:8000"
+
+	service := domain.ServiceInput{
+		Name:         name,
+		FriendlyName: friendlyName,
+		Host:         host,
+		AdminGroups:  []string{"service-admins"},
+		UserGroups:   []string{},
+	}
+
+	groupInput := domain.GroupInput{
+		Name: "service-admins",
+	}
+	if _, err := handlers.Groups.Add(groupInput, []string{domain.GroupNameAdmin}); err != nil {
+		t.Fatal("Unexpected error occurred")
+	}
+
+	savedService, err := handlers.Services.Add(service, []string{domain.GroupNameAdmin})
+	if err != nil {
+		t.Fatal("Unexpected error occurred")
+	}
+
+	if _, err = handlers.Services.GetByID(savedService.ID, []string{"service-admins"}); err != nil {
+		t.Fatal("Failed to get service")
+	}
 }
 
 func TestServiceGetByIDAuthorized(t *testing.T) {
