@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -456,5 +457,20 @@ func TestGetBody(t *testing.T) {
 
 	if flatBody, ok := flatBody.(map[string]any); !ok || flatBody["test"] != "1234" {
 		t.Fatal("Body generated incorrectly")
+	}
+}
+
+func TestMakeProxyRequest(t *testing.T) {
+	request := PRequest{
+		Method:  "GET",
+		Data:    map[string]any{},
+		URL:     "http://google.com",
+		Headers: map[string]string{},
+	}
+
+	response := makeProxyRequest(&request)
+
+	if response.StatusCode != http.StatusOK || response.Message != "Conductor Proxy request success" {
+		t.Fatal("Failed to make simple request")
 	}
 }

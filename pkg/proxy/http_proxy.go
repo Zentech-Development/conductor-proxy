@@ -1,6 +1,8 @@
 package proxy
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -63,9 +65,13 @@ func (p *HTTPProxy) GetResponse() (*domain.ProxyResponse, int) {
 		return makeErrorResponse(makeMessage(err.Error(), p.Request.RequestID), http.StatusBadRequest)
 	}
 
-	// TODO: make request and process response
+	pResponse := makeProxyRequest(&pRequest)
 
-	return &domain.ProxyResponse{}, http.StatusOK
+	if pResponse.StatusCode != http.StatusOK {
+		return pResponse, pResponse.StatusCode
+	}
+
+	return pResponse, http.StatusOK
 }
 
 func getEndpointDefinition(requestedEndpointName string, resourceEndpoints []domain.Endpoint) (domain.Endpoint, error) {
@@ -205,6 +211,57 @@ func getBody(params map[string]any, definitions []domain.Parameter, originalBody
 	}
 
 	return body, nil
+}
+
+func makeProxyRequest(proxyRequest *PRequest) *domain.ProxyResponse {
+	serialized, err := json.Marshal(proxyRequest.Data)
+	if err != nil {
+		return &domain.ProxyResponse{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Something very weird happened",
+			Data:       map[string]any{},
+		}
+	}
+
+	req, err := http.NewRequest(proxyRequest.Method, proxyRequest.URL, bytes.NewReader(serialized))
+	if err != nil {
+		return &domain.ProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Something very weird happened",
+			Data:       map[string]any{},
+		}
+	}
+
+	for key, val := range proxyRequest.Headers {
+		req.Header.Add(key, val)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return &domain.ProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Something very weird happened",
+			Data:       map[string]any{},
+		}
+	}
+
+	pResponse := &domain.ProxyResponse{
+		StatusCode: http.StatusOK,
+		Message:    "Conductor Proxy request success",
+		Data:       make([]byte, 0),
+	}
+
+	_, err = resp.Body.Read(pResponse.Data.([]byte))
+	if err != nil {
+		return &domain.ProxyResponse{
+			StatusCode: http.StatusOK,
+			Message:    "Response did not parse as bytes",
+			Data:       map[string]any{},
+		}
+	}
+
+	return pResponse
 }
 
 func makeMessage(message string, requestId string) string {
