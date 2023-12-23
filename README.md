@@ -159,16 +159,24 @@ Resources belong to one service and are a definition of a particular object type
 and the endpoints available for it.
 
 ### Parameters
-Valid Data Types by Param Type:
+Parameters are the primary way to pass data into requests. Parameters for HTTP requests can be set in
+the request path, query parameters, body, or headers. 
+
+Valid Data Types by Param Type for HTTP Resources:
 Header: string, int, bool
 Path: string, int, bool
 Query: string, int, bool
 Body: any
 BodyFlat: any
 
-TODO
-
 ## Proxy
+If a request is made to an endpoint with a parameter value supplied that is defined as a body or
+a body flat parameter, the following logic is applied. If it is a body flat parameter value is used
+to replace the entirety of the incoming request body. If it is a body parameter and the supplied body
+is nil or a JSON object, the parameter value will be set using the parameter name as the key and the 
+supplied value as the value. If it is a body parameter and the supplied body is not nil or a JSON
+object, an error will be returned.
+
 TODO
 
 # Conductor Proxy API Reference
