@@ -28,7 +28,6 @@ type RedisRepo struct {
 type RedisRepoConfig struct {
 	Host     string
 	Password string
-	Mock     string
 }
 
 func NewRedisRepo(config RedisRepoConfig) domain.Repos {

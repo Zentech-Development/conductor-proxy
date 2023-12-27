@@ -10,7 +10,7 @@ import (
 )
 
 func TestServiceGetByID(t *testing.T) {
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	id := uuid.NewString()
 	name := "test-service"
@@ -48,7 +48,7 @@ func TestServiceGetByID(t *testing.T) {
 }
 
 func TestServiceAdd(t *testing.T) {
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	id := uuid.NewString()
 	name := "test-service"

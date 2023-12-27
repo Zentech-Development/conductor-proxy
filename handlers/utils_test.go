@@ -6,7 +6,7 @@ import (
 )
 
 func newHandlers() domain.Handlers {
-	mockDB := adapters.NewMockDB(nil, domain.GroupNameAdmin)
+	mockDB := adapters.NewMockDB()
 
 	adapts := domain.Adapters{
 		Repos:  mockDB,

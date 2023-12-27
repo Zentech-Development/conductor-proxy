@@ -13,7 +13,7 @@ func TestAccountAdd(t *testing.T) {
 	id := uuid.NewString()
 	username := "test-account"
 
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	account := domain.Account{
 		ID:              id,
@@ -47,7 +47,7 @@ func TestAccountGetByUsername(t *testing.T) {
 	id := uuid.NewString()
 	username := "test-user"
 
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	account := domain.Account{
 		ID:              id,
@@ -81,7 +81,7 @@ func TestAccountUpdate(t *testing.T) {
 	id := uuid.NewString()
 	username := "test-user"
 
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	account := domain.Account{
 		ID:              id,

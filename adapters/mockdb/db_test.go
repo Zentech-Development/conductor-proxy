@@ -5,25 +5,17 @@ import (
 	"testing"
 
 	mockAdapters "github.com/Zentech-Development/conductor-proxy/adapters/mockdb"
-	"github.com/Zentech-Development/conductor-proxy/domain"
-	"github.com/google/uuid"
+	"github.com/Zentech-Development/conductor-proxy/pkg/config"
 )
 
 func TestNewMockDB(t *testing.T) {
-	_ = mockAdapters.NewMockDB(nil, "")
+	_ = mockAdapters.NewMockDB()
 
-	username := "test-admin"
-	adminAccount := &domain.Account{
-		ID:              uuid.NewString(),
-		Username:        username,
-		Passkey:         "password123",
-		Groups:          []string{domain.GroupNameAdmin},
-		TokenExpiration: 0,
-	}
+	db := mockAdapters.NewMockDB()
 
-	db := mockAdapters.NewMockDB(adminAccount, "")
+	conf := config.GetConfig()
 
-	if _, err := db.Accounts.GetByUsername(context.Background(), username); err != nil {
+	if _, err := db.Accounts.GetByUsername(context.Background(), conf.DefaultAdminUsername); err != nil {
 		t.Fatal("Failed to create initial admin account")
 	}
 }

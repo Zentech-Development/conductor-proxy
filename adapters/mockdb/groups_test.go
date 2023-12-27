@@ -10,7 +10,7 @@ import (
 )
 
 func TestGroupGetByName(t *testing.T) {
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	id := uuid.NewString()
 	name := "test-group"
@@ -39,7 +39,7 @@ func TestGroupGetByName(t *testing.T) {
 }
 
 func TestGroupAdd(t *testing.T) {
-	db := mockAdapters.NewMockDB(nil, "")
+	db := mockAdapters.NewMockDB()
 
 	id := uuid.NewString()
 	name := "test-group"

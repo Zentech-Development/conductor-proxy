@@ -1,8 +1,12 @@
 package adapters
 
 import (
+	"slices"
+
 	"github.com/Zentech-Development/conductor-proxy/domain"
+	conf "github.com/Zentech-Development/conductor-proxy/pkg/config"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type MockDBData struct {
@@ -16,7 +20,7 @@ type MockDB struct {
 	Data *MockDBData
 }
 
-func NewMockDB(initialAdminAccount *domain.Account, initialAdminGroup string) domain.Repos {
+func NewMockDB() domain.Repos {
 	data := &MockDBData{
 		Accounts:  make([]domain.Account, 0),
 		Groups:    make([]domain.Group, 0),
@@ -24,16 +28,7 @@ func NewMockDB(initialAdminAccount *domain.Account, initialAdminGroup string) do
 		Services:  make([]domain.Service, 0),
 	}
 
-	if initialAdminAccount != nil {
-		data.Accounts = append(data.Accounts, *initialAdminAccount)
-	}
-
-	if initialAdminGroup != "" {
-		data.Groups = append(data.Groups, domain.Group{
-			ID:   uuid.NewString(),
-			Name: initialAdminGroup,
-		})
-	}
+	addFirstAdminUserIfRequired(data)
 
 	return domain.Repos{
 		Accounts:  newMockAccountRepo(data),
@@ -41,4 +36,45 @@ func NewMockDB(initialAdminAccount *domain.Account, initialAdminGroup string) do
 		Resources: newMockResourceRepo(data),
 		Services:  newMockServiceRepo(data),
 	}
+}
+
+func addFirstAdminUserIfRequired(data *MockDBData) {
+	conductorConfig := conf.GetConfig()
+	foundAdminGroup := false
+
+	for _, group := range data.Groups {
+		if group.Name == domain.GroupNameAdmin {
+			foundAdminGroup = true
+		}
+	}
+
+	if !foundAdminGroup {
+		data.Groups = append(data.Groups, domain.Group{
+			ID:   uuid.NewString(),
+			Name: domain.GroupNameAdmin,
+		})
+	}
+
+	for _, account := range data.Accounts {
+		if slices.Contains(account.Groups, domain.GroupNameAdmin) {
+			return
+		}
+	}
+
+	adminUser := domain.Account{
+		ID:              uuid.NewString(),
+		Username:        conductorConfig.DefaultAdminUsername,
+		Passkey:         conductorConfig.DefaultAdminPasskey,
+		Groups:          []string{domain.GroupNameAdmin},
+		TokenExpiration: 3600,
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(adminUser.Passkey), conductorConfig.JwtHashCost)
+	if err != nil {
+		panic(err)
+	}
+
+	adminUser.Passkey = string(hash)
+
+	data.Accounts = append(data.Accounts, adminUser)
 }

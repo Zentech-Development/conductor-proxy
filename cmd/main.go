@@ -3,28 +3,32 @@ package main
 import (
 	"log"
 
+	mockAdapters "github.com/Zentech-Development/conductor-proxy/adapters/mockdb"
 	redisAdapters "github.com/Zentech-Development/conductor-proxy/adapters/redis"
 	bindings "github.com/Zentech-Development/conductor-proxy/bindings/gin"
 	"github.com/Zentech-Development/conductor-proxy/domain"
 	"github.com/Zentech-Development/conductor-proxy/handlers"
 	"github.com/Zentech-Development/conductor-proxy/pkg/config"
+	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	config := config.GetConfig()
+func setupApp(conf *config.ConductorConfig) *gin.Engine {
+	var repos domain.Repos
 
-	redisRepo := redisAdapters.NewRedisRepo(redisAdapters.RedisRepoConfig{
-		Host:     config.RedisHost,
-		Password: config.RedisPassword,
-	})
+	switch conf.Database {
+	case config.DatabaseTypeRedis:
+		repos = redisAdapters.NewRedisRepo(redisAdapters.RedisRepoConfig{
+			Host:     conf.RedisHost,
+			Password: conf.RedisPassword,
+		})
+	case config.DatabaseTypeMock:
+		repos = mockAdapters.NewMockDB()
+	default:
+		panic("Bad database type")
+	}
 
 	adapters := domain.Adapters{
-		Repos: domain.Repos{
-			Resources: redisRepo.Resources,
-			Services:  redisRepo.Services,
-			Groups:    redisRepo.Groups,
-			Accounts:  redisRepo.Accounts,
-		},
+		Repos: repos,
 	}
 
 	handlers := domain.Handlers{
@@ -35,10 +39,14 @@ func main() {
 		Proxy:     handlers.NewProxyHandler(&adapters),
 	}
 
-	server := bindings.NewHTTPServerBinding(handlers, bindings.HTTPServerBindingConfig{
-		SecretKey: config.SecretKey,
-		GinMode:   config.GinMode,
+	return bindings.NewHTTPServerBinding(handlers, bindings.HTTPServerBindingConfig{
+		SecretKey: conf.SecretKey,
+		GinMode:   conf.GinMode,
 	})
+}
 
+func main() {
+	config := config.GetConfig()
+	server := setupApp(config)
 	log.Fatal(server.Run(config.Host))
 }
