@@ -3,13 +3,13 @@ package domain
 import "context"
 
 type Service struct {
-	ID           string
-	Name         string
-	FriendlyName string
-	Host         string
-	AdminGroups  []string
-	UserGroups   []string
-	Type         string
+	ID           string   `json:"id" binding:"required"`
+	Name         string   `json:"name" binding:"required"`
+	FriendlyName string   `json:"friendlyName" binding:"required"`
+	Host         string   `json:"host" binding:"required"`
+	AdminGroups  []string `json:"adminGroups" binding:"required"`
+	UserGroups   []string `json:"userGroups" binding:"required"`
+	Type         string   `json:"type" binding:"required"`
 }
 
 type ServiceInput struct {
