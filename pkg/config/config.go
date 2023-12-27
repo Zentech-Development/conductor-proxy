@@ -31,6 +31,7 @@ const (
 	DatabaseTypeMongo    = "mongo"
 	DatabaseTypeSQLite   = "sqlite"
 	DatabaseTypePostgres = "postgres"
+	DatabaseTypeMock     = "mock"
 )
 
 var config *ConductorConfig
@@ -92,7 +93,7 @@ func NewConfig(envFilePath string) *ConductorConfig {
 	}
 
 	if database := os.Getenv("CONDUCTOR_DATABASE"); database != "" {
-		validDatabases := []string{DatabaseTypeMongo, DatabaseTypePostgres, DatabaseTypeRedis, DatabaseTypeSQLite}
+		validDatabases := []string{DatabaseTypeMongo, DatabaseTypePostgres, DatabaseTypeRedis, DatabaseTypeSQLite, DatabaseTypeMock}
 		if !slices.Contains(validDatabases, database) {
 			panic("Invalid value for CONDUCTOR_DATABASE")
 		}

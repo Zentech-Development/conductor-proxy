@@ -1,0 +1,37 @@
+{
+  "configurations": [
+    {
+      "name": "Debug Redis Conductor",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/main.go",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "CONDUCTOR_HOST": ":8000",
+        "CONDUCTOR_SECURE": "false",
+        "CONDUCTOR_DATABASE": "redis",
+        "CONDUCTOR_DEFAULT_TOKEN_TIMEOUT": "60",
+        "CONDUCTOR_GIN_MODE": "debug",
+        "CONDUCTOR_SECRET_KEY": "87nhya8byudgfysugefi2v72y98nymfjducnj98syfb7",
+        "CONDUCTOR_REDIS_HOST": "redis0:6379"
+      }
+    },
+    {
+      "name": "Debug Mock Conductor",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/main.go",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "CONDUCTOR_HOST": ":8000",
+        "CONDUCTOR_SECURE": "false",
+        "CONDUCTOR_DATABASE": "mock",
+        "CONDUCTOR_DEFAULT_TOKEN_TIMEOUT": "60",
+        "CONDUCTOR_GIN_MODE": "debug",
+        "CONDUCTOR_SECRET_KEY": "87nhya8byudgfysugefi2v72y98nymfjducnj98syfb7",
+      }
+    }
+  ]
+}

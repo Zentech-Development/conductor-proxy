@@ -22,8 +22,6 @@ go.work
 
 .env
 
-.vscode
-
 main
 
 conductorProxy
