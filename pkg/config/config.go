@@ -113,5 +113,7 @@ func NewConfig(envFilePath string) *ConductorConfig {
 		conductorConfig.DefaultAdminPasskey = defaultAdminPasskey
 	}
 
+	fmt.Printf("Using database %s\n", conductorConfig.Database)
+
 	return conductorConfig
 }
