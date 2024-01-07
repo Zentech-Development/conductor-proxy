@@ -40,7 +40,7 @@ func (h AccountHandler) Add(account domain.AccountInput, userGroups []string) (d
 		}
 	}
 
-	hashedPasskey, err := hashPassword(account.Passkey, config.GetConfig().JwtHashCost)
+	hashedPasskey, err := hashPassword(account.Passkey, config.GetConfig().AccessTokenCost)
 	if err != nil {
 		return domain.Account{}, errors.New("failed to generate password hash")
 	}

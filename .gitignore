@@ -25,5 +25,6 @@ go.work
 main
 
 conductorProxy
+conductor.conf
 
 __debug*

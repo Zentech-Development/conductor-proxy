@@ -16,7 +16,7 @@ type AuthClaims struct {
 }
 
 func getAccessToken(username string, groups []string, expiration int) (string, error) {
-	key := config.GetConfig().SecretKey
+	key := config.GetConfig().AccessTokenSecret
 
 	claims := AuthClaims{
 		groups,
@@ -41,7 +41,7 @@ func getAccessToken(username string, groups []string, expiration int) (string, e
 
 func verifyAccessToken(signedToken string) (AuthClaims, error) {
 	token, err := jwt.ParseWithClaims(signedToken, &AuthClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(config.GetConfig().SecretKey), nil
+		return []byte(config.GetConfig().AccessTokenSecret), nil
 	}, jwt.WithIssuer("conductor-proxy"))
 
 	if err != nil {

@@ -39,7 +39,7 @@ func NewMockDB() domain.Repos {
 }
 
 func addFirstAdminUserIfRequired(data *MockDBData) {
-	conductorConfig := conf.GetConfig()
+	config := conf.GetConfig()
 	foundAdminGroup := false
 
 	for _, group := range data.Groups {
@@ -63,13 +63,13 @@ func addFirstAdminUserIfRequired(data *MockDBData) {
 
 	adminUser := domain.Account{
 		ID:              uuid.NewString(),
-		Username:        conductorConfig.DefaultAdminUsername,
-		Passkey:         conductorConfig.DefaultAdminPasskey,
+		Username:        config.DefaultAdminUsername,
+		Passkey:         config.DefaultAdminPasskey,
 		Groups:          []string{domain.GroupNameAdmin},
 		TokenExpiration: 3600,
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(adminUser.Passkey), conductorConfig.JwtHashCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(adminUser.Passkey), config.AccessTokenCost)
 	if err != nil {
 		panic(err)
 	}

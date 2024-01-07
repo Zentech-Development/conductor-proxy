@@ -1,29 +1,30 @@
 package config
 
 import (
-	"fmt"
-	"os"
+	"encoding/json"
+	"log"
 	"slices"
-	"strconv"
 	"sync"
 
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 var lock = &sync.Mutex{}
 
 type ConductorConfig struct {
-	Host                 string
-	Database             string
-	Secure               bool
-	SecretKey            string
-	GinMode              string
-	DefaultTokenTimeout  int
-	RedisHost            string
-	RedisPassword        string
-	DefaultAdminUsername string
-	DefaultAdminPasskey  string
-	JwtHashCost          int
+	Host         string `mapstructure:"CONDUCTOR_HOST"`
+	DatabaseType string `mapstructure:"CONDUCTOR_DATABASE_TYPE"`
+	SecureMode   bool   `mapstructure:"CONDUCTOR_SECURE_MODE"`
+
+	AccessTokenSecret   string `mapstructure:"CONDUCTOR_ACCESS_TOKEN_SECRET" json:"-"`
+	AccessTokenCost     int    `mapstructure:"CONDCUTOR_ACCESS_TOKEN_COST"`
+	DefaultTokenTimeout int    `mapstructure:"CONDUCTOR_DEFAULT_TOKEN_TIMEOUT"`
+
+	DefaultAdminUsername string `mapstructure:"CONDUCTOR_DEFAULT_ADMIN_USERNAME"`
+	DefaultAdminPasskey  string `mapstructure:"CONDUCTOR_DEFAULT_ADMIN_PASSKEY" json:"-"`
+
+	RedisHost     string `mapstructure:"CONDUCTOR_REDIS_HOST"`
+	RedisPassword string `mapstructure:"CONDUCTOR_REDIS_PASSWORD" json:"-"`
 }
 
 const (
@@ -34,86 +35,65 @@ const (
 	DatabaseTypeMock     = "mock"
 )
 
-var config *ConductorConfig
+var conductorConfig *ConductorConfig
 
-func GetConfig() *ConductorConfig {
+func SetAndGetConfig(configFilePath string) *ConductorConfig {
 	// extra check here to avoid using the (very expensive) lock whenever possible
-	if config == nil {
+	if conductorConfig == nil {
 		lock.Lock()
 		defer lock.Unlock()
 
-		if config == nil {
-			config = NewConfig("./pkg/config/.env")
+		if conductorConfig == nil {
+			conductorConfig = NewConfig(configFilePath)
 		}
 	}
 
-	return config
+	return conductorConfig
+}
+
+func GetConfig() *ConductorConfig {
+	return conductorConfig
 }
 
 func NewConfig(envFilePath string) *ConductorConfig {
-	if err := godotenv.Load(envFilePath); err != nil {
-		fmt.Println("Failed to load .env file, using system environment variables")
-	}
+	conf := &ConductorConfig{}
 
-	conductorConfig := &ConductorConfig{
-		Host:                 "localhost:8080",
-		Database:             DatabaseTypeRedis,
-		Secure:               true,
-		DefaultTokenTimeout:  60 * 60,
-		GinMode:              "release",
-		SecretKey:            "",
-		DefaultAdminUsername: "admin",
-		DefaultAdminPasskey:  "admin",
-		JwtHashCost:          12,
-	}
+	v := viper.New()
 
-	conductorConfig.SecretKey = os.Getenv("CONDUCTOR_SECRET_KEY")
-	if conductorConfig.SecretKey == "" {
-		panic("Must provide a CONDUCTOR_SECRET_KEY environment variable")
-	}
+	v.SetDefault("CONDUCTOR_HOST", "localhost:8000")
+	v.SetDefault("CONDUCTOR_DATABASE_TYPE", "mock")
+	v.SetDefault("CONDUCTOR_SECURE_MODE", true)
+	v.SetDefault("CONDUCTOR_DEFAULT_TOKEN_TIMEOUT", 3600)
+	v.SetDefault("CONDUCTOR_DEFAULT_ADMIN_USERNAME", "admin")
+	v.SetDefault("CONDUCTOR_DEFAULT_ADMIN_PASSKEY", "password")
+	v.SetDefault("CONDCUTOR_ACCESS_TOKEN_COST", 12)
 
-	if defaultTimeout := os.Getenv("CONDUCTOR_DEFAULT_TOKEN_TIMEOUT"); defaultTimeout != "" {
-		parsedVal, err := strconv.Atoi(defaultTimeout)
-		if err != nil {
-			panic("Bad value supplied for CONDUCTOR_DEFAULT_TOKEN_TIMEOUT")
+	if envFilePath != "" {
+		v.SetConfigFile(envFilePath)
+		v.SetConfigType("env")
+		if err := v.ReadInConfig(); err != nil {
+			log.Fatal("Failed to load the configuration file: ", err)
 		}
-		conductorConfig.DefaultTokenTimeout = parsedVal
 	}
 
-	if ginMode := os.Getenv("CONDUCTOR_GIN_MODE"); ginMode == "debug" {
-		conductorConfig.GinMode = "debug"
+	v.AutomaticEnv()
+
+	if err := v.Unmarshal(conf); err != nil {
+		log.Fatal("Invalid configuration: ", err)
 	}
 
-	if secure := os.Getenv("CONDUCTOR_SECURE"); secure == "false" {
-		conductorConfig.Secure = false
+	validDatabaseTypes := []string{DatabaseTypeMongo, DatabaseTypePostgres, DatabaseTypeRedis, DatabaseTypeSQLite, DatabaseTypeMock}
+	if !slices.Contains(validDatabaseTypes, conf.DatabaseType) {
+		log.Fatalf("Invalid database type: %s", conf.DatabaseType)
 	}
 
-	if host := os.Getenv("CONDUCTOR_HOST"); host != "" {
-		conductorConfig.Host = host
+	if conf.SecureMode && conf.AccessTokenSecret == "" {
+		log.Fatal("Must provide CONDUCTOR_ACCESS_TOKEN_SECRET")
 	}
 
-	if database := os.Getenv("CONDUCTOR_DATABASE"); database != "" {
-		validDatabases := []string{DatabaseTypeMongo, DatabaseTypePostgres, DatabaseTypeRedis, DatabaseTypeSQLite, DatabaseTypeMock}
-		if !slices.Contains(validDatabases, database) {
-			panic("Invalid value for CONDUCTOR_DATABASE")
-		}
-		conductorConfig.Database = database
-	}
+	log.Default().Println("Conductor configuration initialized")
+	vals, _ := json.MarshalIndent(conf, "", "\t")
+	log.Default().Println(string(vals))
 
-	if conductorConfig.Database == DatabaseTypeRedis {
-		conductorConfig.RedisHost = os.Getenv("CONDUCTOR_REDIS_HOST")
-		conductorConfig.RedisPassword = os.Getenv("CONDUCTOR_REDIS_PASSWORD")
-	}
-
-	if defaultAdminUsername := os.Getenv("CONDUCTOR_DEFAULT_ADMIN_USERNAME"); defaultAdminUsername != "" {
-		conductorConfig.DefaultAdminUsername = defaultAdminUsername
-	}
-
-	if defaultAdminPasskey := os.Getenv("CONDUCTOR_DEFAULT_ADMIN_PASSKEY"); defaultAdminPasskey != "" {
-		conductorConfig.DefaultAdminPasskey = defaultAdminPasskey
-	}
-
-	fmt.Printf("Using database %s\n", conductorConfig.Database)
-
-	return conductorConfig
+	return conf
 }
