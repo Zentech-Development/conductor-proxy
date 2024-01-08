@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/Zentech-Development/conductor-proxy/pkg/config"
@@ -12,6 +13,12 @@ import (
 func getPath(path string) string {
 	config := config.GetConfig()
 	return fmt.Sprintf("http://%s%s", config.Host, path)
+}
+
+func TestMain(m *testing.M) {
+	config.SetAndGetConfig("")
+	m.Run()
+	os.Exit(0)
 }
 
 func TestHealthcheck(t *testing.T) {

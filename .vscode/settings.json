@@ -1,6 +1,5 @@
 {
   "go.testEnvVars": {
-    "CONDUCTOR_SECRET_KEY": "asdf",
-    "CONDUCTOR_DATABASE": "mock"
+    "CONDUCTOR_SECRET": "asdffasfdasq3rq4rqrwef"
   }
 }

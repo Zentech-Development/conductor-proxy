@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"log"
+	"os"
 	"slices"
 	"sync"
 
@@ -12,19 +13,19 @@ import (
 var lock = &sync.Mutex{}
 
 type ConductorConfig struct {
-	Host         string `mapstructure:"CONDUCTOR_HOST"`
-	DatabaseType string `mapstructure:"CONDUCTOR_DATABASE_TYPE"`
-	SecureMode   bool   `mapstructure:"CONDUCTOR_SECURE_MODE"`
+	Host         string `mapstructure:"HOST"`
+	DatabaseType string `mapstructure:"DATABASE_TYPE"`
+	SecureMode   bool   `mapstructure:"SECURE_MODE"`
 
-	AccessTokenSecret   string `mapstructure:"CONDUCTOR_ACCESS_TOKEN_SECRET" json:"-"`
-	AccessTokenCost     int    `mapstructure:"CONDCUTOR_ACCESS_TOKEN_COST"`
-	DefaultTokenTimeout int    `mapstructure:"CONDUCTOR_DEFAULT_TOKEN_TIMEOUT"`
+	AccessTokenSecret   string `mapstructure:"ACCESS_TOKEN_SECRET_KEY" json:"-"`
+	AccessTokenCost     int    `mapstructure:"ACCESS_TOKEN_COST"`
+	DefaultTokenTimeout int    `mapstructure:"DEFAULT_TOKEN_TIMEOUT_SECONDS"`
 
-	DefaultAdminUsername string `mapstructure:"CONDUCTOR_DEFAULT_ADMIN_USERNAME"`
-	DefaultAdminPasskey  string `mapstructure:"CONDUCTOR_DEFAULT_ADMIN_PASSKEY" json:"-"`
+	DefaultAdminUsername string `mapstructure:"DEFAULT_ADMIN_USERNAME"`
+	DefaultAdminPasskey  string `mapstructure:"DEFAULT_ADMIN_PASSKEY" json:"-"`
 
-	RedisHost     string `mapstructure:"CONDUCTOR_REDIS_HOST"`
-	RedisPassword string `mapstructure:"CONDUCTOR_REDIS_PASSWORD" json:"-"`
+	RedisHost     string `mapstructure:"REDIS_HOST"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD" json:"-"`
 }
 
 const (
@@ -60,13 +61,13 @@ func NewConfig(envFilePath string) *ConductorConfig {
 
 	v := viper.New()
 
-	v.SetDefault("CONDUCTOR_HOST", "localhost:8000")
-	v.SetDefault("CONDUCTOR_DATABASE_TYPE", "mock")
-	v.SetDefault("CONDUCTOR_SECURE_MODE", true)
-	v.SetDefault("CONDUCTOR_DEFAULT_TOKEN_TIMEOUT", 3600)
-	v.SetDefault("CONDUCTOR_DEFAULT_ADMIN_USERNAME", "admin")
-	v.SetDefault("CONDUCTOR_DEFAULT_ADMIN_PASSKEY", "password")
-	v.SetDefault("CONDCUTOR_ACCESS_TOKEN_COST", 12)
+	v.SetDefault("HOST", "localhost:8000")
+	v.SetDefault("DATABASE_TYPE", "mock")
+	v.SetDefault("SECURE_MODE", true)
+	v.SetDefault("DEFAULT_TOKEN_TIMEOUT_SECONDS", 3600)
+	v.SetDefault("DEFAULT_ADMIN_USERNAME", "admin")
+	v.SetDefault("DEFAULT_ADMIN_PASSKEY", "password")
+	v.SetDefault("ACCESS_TOKEN_COST", 12)
 
 	if envFilePath != "" {
 		v.SetConfigFile(envFilePath)
@@ -76,7 +77,14 @@ func NewConfig(envFilePath string) *ConductorConfig {
 		}
 	}
 
-	v.AutomaticEnv()
+	secretKey := os.Getenv("CONDUCTOR_SECRET")
+	if secretKey == "" && v.GetString("ACCESS_TOKEN_SECRET_KEY") == "" {
+		log.Fatal("Must supply CONDUCTOR_SECRET env variable or ACCESS_TOKEN_SECRET_KEY in config file")
+	}
+
+	if secretKey != "" {
+		v.Set("ACCESS_TOKEN_SECRET_KEY", secretKey)
+	}
 
 	if err := v.Unmarshal(conf); err != nil {
 		log.Fatal("Invalid configuration: ", err)
@@ -85,10 +93,6 @@ func NewConfig(envFilePath string) *ConductorConfig {
 	validDatabaseTypes := []string{DatabaseTypeMongo, DatabaseTypePostgres, DatabaseTypeRedis, DatabaseTypeSQLite, DatabaseTypeMock}
 	if !slices.Contains(validDatabaseTypes, conf.DatabaseType) {
 		log.Fatalf("Invalid database type: %s", conf.DatabaseType)
-	}
-
-	if conf.SecureMode && conf.AccessTokenSecret == "" {
-		log.Fatal("Must provide CONDUCTOR_ACCESS_TOKEN_SECRET")
 	}
 
 	log.Default().Println("Conductor configuration initialized")
