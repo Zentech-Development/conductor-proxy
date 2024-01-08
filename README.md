@@ -58,7 +58,7 @@ docker pull zentech/conductor-proxy:latest
 ```
 
 ## Docker Compose
-Add the following to your `docker-compose.yml` file.
+Add the following to your `docker-compose.yml` file. (Not currently working)
 ```yaml
 services:
   conductor:
@@ -76,41 +76,44 @@ services:
 TODO
 
 # Configuration Options
+Configuration is handled using a configuration file with env file-style variables. A template configuration
+file is available in `pkg/config/conductor.conf.template`.
+
 ## Environment Variables
 
-### CONDUCTOR_DATABASE (Optional, defaults to sqlite)
+### DATABASE_TYPE (Optional, defaults to mock)
 Sets the database to use for persisting service and resource definitions and encrypted
-tokens. Possible values are `sqlite`, `postgres`, `mongo`, `redis`.
+tokens. Possible values are `sqlite`, `postgres`, `mongo`, `redis`, and `mock`.
 
 If set to `sqlite`, Conductor will use a SQLite database in itself. A volume 
 should be configured to save this data over container restarts. `CONDUCTOR_SECURE` should
 probably be set to `false`, since this should only be used locally for development.
 
-If set to `redis`, additional variables `CONDUCTOR_REDIS_HOST`, and `CONDUCTOR_REDIS_PASSWORD` must be supplied.
+If set to `redis`, additional variables `REDIS_HOST`, and `REDIS_PASSWORD` must be supplied.
 
-### CONDUCTOR_SECURE (Optional, defaults to true)
-Sets Conductor to allow non-https requests, allow unauthenticated requests. This should NEVER
-be `false` in production.
+If set to `mock`, data will not be preserved when the application is stopped.
 
-### CONDUCTOR_HOST (Optional, defaults to localhost:8080)
+### SECURE_MODE (Optional, defaults to true)
+Sets Conductor to allow non-https requests, allow unauthenticated requests, etc. This should NEVER
+be `false` in production. It also does not do anything currently.
+
+### HOST (Optional, defaults to localhost:8000)
 Hostname and port that Conductor will listen for traffic on.
 
-### CONDUCTOR_DEFAULT_TOKEN_TIMEOUT (Optional, defaults to 1 hour)
+### DEFAULT_TOKEN_TIMEOUT_SECONDS (Optional, defaults to 1 hour)
 Sets the default expiration time for account logins to use if the account does not have a 
 custom value set. In seconds. A value of 0 means the generated tokens will never expire.
 
-### CONDUCTOR_GIN_MODE (Optional, defaults to release)
-Sets the GIN_MODE variable passed into Gin. Probably should be release unless you are developing
-Conductor.
-
-### CONDUCTOR_SECRET_KEY (Required)
+### ACCESS_TOKEN_SECRET_KEY (Optional, but must be provided here or in CONDUCTOR_SECRET environment variable)
 Sets the secret key to be used for signing and verifying access tokens. Should be random and longer
-than 36 characters.
+than 36 characters. This should only be set in the config file in development. In production, set the 
+secret key by setting a `CONDUCTOR_SECRET` environment variable. If one is set, the value in the config value
+will be overwritten.
 
-### CONDUCTOR_DEFAULT_ADMIN_USERNAME (Optional, defaults to admin)
+### DEFAULT_ADMIN_USERNAME (Optional, defaults to admin)
 Username for initial admin account when Conductor first starts.
 
-### CONDUCTOR_DEFAULT_ADMIN_PASSKEY (Optional, defaults to admin)
+### DEFAULT_ADMIN_PASSKEY (Optional, defaults to password)
 Passkey for initial admin account when Conductor first starts.
 
 # Running Conductor Proxy
